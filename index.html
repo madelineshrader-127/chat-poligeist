@@ -12,11 +12,11 @@
 
     /* Header */
     header {
-      background: #555879; /* Updated base color */
+      background: #555879;
       color: white;
       padding: 2.5rem 0;
       text-align: center;
-      border-bottom: 4px solid #98A1BC; /* Updated accent color */
+      border-bottom: 4px solid #98A1BC;
     }
     h1 { font-size:3rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
     .subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
@@ -181,9 +181,7 @@
           <button type="button" onclick="format('bold')"><b>B</b></button>
           <button type="button" onclick="format('italic')"><i>I</i></button>
           <button type="button" onclick="format('underline')"><u>U</u></button>
-          <button type="button" onclick="format('insertUnorderedList')">• List</button>
-          <button type="button" onclick="format('insertOrderedList')">1. List</button>
-          <button type="button" onclick="insertImage()">🖼️ Image</button>
+          <button type="button" onclick="insertImage()">Image</button>
         </div>
         <div id="content" contenteditable="true"></div>
       </div>
@@ -202,18 +200,32 @@
   </div>
 
   <div id="aboutTab" class="tab-content">
-    <div id="postsAbout" class="posts"></div>
+    <div id="postsAbout">
+      <div class="empty-state">
+        <h3>No posts yet</h3>
+        <p>Toggle the admin panel above to create your first post!</p>
+      </div>
+    </div>
   </div>
 
   <div id="politicsTab" class="tab-content">
-    <div id="postsPolitics" class="posts"></div>
+    <div id="postsPolitics">
+      <div class="empty-state">
+        <h3>No posts yet</h3>
+        <p>Toggle the admin panel above to create your first post!</p>
+      </div>
+    </div>
   </div>
 
   <div id="japaneseTab" class="tab-content">
-    <div id="postsJapanese" class="posts"></div>
+    <div id="postsJapanese">
+      <div class="empty-state">
+        <h3>No posts yet</h3>
+        <p>Toggle the admin panel above to create your first post!</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Subscribe box -->
   <div id="subscribe-box">
     <input type="email" id="subscriber-email" placeholder="Enter your email" required>
     <button class="subscribe-btn" onclick="subscribe()">Subscribe</button>
@@ -254,28 +266,28 @@ function savePosts(){
   localStorage.setItem('poligeistPosts', JSON.stringify(posts));
   renderPosts();
 }
+
 function renderPosts(){
+  const categories={'about':'About','politics':'Politics','japanese':'Japanese'};
+  const categoryNames={'about':'About This Page','politics':'Politics','japanese':'Japanese Supernatural Culture'};
   const featuredContainer=document.getElementById('featuredPost');
+
   if(posts.length===0){
     featuredContainer.innerHTML=`<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>`;
   } else {
     const latest=posts[0];
     const preview=latest.content.substring(0,400)+(latest.content.length>400?'...':'');
-    featuredContainer.innerHTML=`<article class="featured-post"><span class="featured-label">Latest Article</span><h2>${latest.title}<span class="category-badge">${latest.category}</span></h2><div class="post-meta">${latest.date}</div><div class="post-content">${preview}</div></article>`;
+    featuredContainer.innerHTML=`<article class="featured-post"><span class="featured-label">Latest Article</span><h2>${latest.title}<span class="category-badge">${categoryNames[latest.category]}</span></h2><div class="post-meta">${latest.date}</div><div class="post-content">${preview}</div><a href="#" class="read-more" onclick="switchToCategory('${latest.category}'); return false;">Read full article →</a></article>`;
   }
-  const containers={about:'postsAbout',politics:'postsPolitics',japanese:'postsJapanese'};
-  Object.keys(containers).forEach(category=>{
-    const container=document.getElementById(containers[category]);
+
+  Object.keys(categories).forEach(category=>{
+    const container=document.getElementById('posts'+categories[category]);
     const catPosts=posts.filter(p=>p.category===category);
     if(catPosts.length===0){
       container.innerHTML=`<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>`;
     } else {
-      container.innerHTML=catPosts.map((post,idx)=>`
-        <article class="post">
-          <h2>${post.title}</h2>
-          <div class="post-meta">${post.date}</div>
-          <div class="post-content">${post.content}</div>
-        </article>`).join('');
+      container.innerHTML=catPosts.map((post, idx)=>`<article class="post"><h2>${post.title}</h2><div class="post-meta">${post.date}</div><div class="post-content">${post.content}</div><div class="comments-section"><h4>Comments</h4><div class="comments-list" id="comments-post-${idx}"></div><form onsubmit="addComment(event,${idx})"><input type="text" id="commentName-${idx}" placeholder="Your name" required><textarea id="commentText-${idx}" placeholder="Your comment" required></textarea><button type="submit">Add Comment</button></form></div><button class="delete-btn" onclick="deletePost(${idx})">Delete</button></article>`).join('');
+      catPosts.forEach((post, idx)=>renderComments(idx));
     }
   });
 }
@@ -285,7 +297,7 @@ document.getElementById('postForm').addEventListener('submit',function(e){
   e.preventDefault();
   const category=document.getElementById('category').value;
   const title=document.getElementById('title').value;
-  const content=document.getElementById('content').innerHTML.trim();
+  const content=document.getElementById('content').innerHTML;
   const post={category,title,content,date:new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),timestamp:Date.now(),comments:[]};
   posts.unshift(post);
   savePosts();
@@ -294,6 +306,14 @@ document.getElementById('postForm').addEventListener('submit',function(e){
   document.getElementById('content').innerHTML='';
   alert('Post published successfully!');
 });
+
+/* Delete Post */
+function deletePost(index){
+  if(confirm('Are you sure you want to delete this post?')){
+    posts.splice(index,1);
+    savePosts();
+  }
+}
 
 /* Admin Panel */
 function toggleAdmin(){
@@ -313,24 +333,55 @@ function exportPosts(){
   URL.revokeObjectURL(url);
 }
 
-/* Toolbar functions */
-function format(command) {
-  document.execCommand(command, false, null);
-}
-function insertImage() {
-  const url = prompt("Enter image URL (must be hosted online):");
-  if (url) {
-    document.execCommand('insertImage', false, url);
-  }
+/* Format & Images */
+function format(cmd){document.execCommand(cmd,false,null);}
+function insertImage(){
+  const url=prompt('Enter image URL:');
+  if(url) document.execCommand('insertImage', false, url);
 }
 
-/* Subscription */
+/* Switch to category tab */
+function switchToCategory(category){
+  const tabMap={'about':'about','politics':'politics','japanese':'japanese'};
+  const tab=tabMap[category];
+  document.querySelectorAll('.nav-tab').forEach(btn=>btn.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(btn=>{
+    if(btn.textContent.toLowerCase().includes(category)||(category==='japanese'&&btn.textContent.includes('Japanese'))){
+      btn.classList.add('active');
+    }
+  });
+  document.querySelectorAll('.tab-content').forEach(content=>content.classList.remove('active'));
+  document.getElementById(tab+'Tab').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* Comments */
+function addComment(e,postIndex){
+  e.preventDefault();
+  const nameInput=document.getElementById(`commentName-${postIndex}`);
+  const textInput=document.getElementById(`commentText-${postIndex}`);
+  const name=nameInput.value.trim();
+  const text=textInput.value.trim();
+  if(!name||!text) return;
+  if(!posts[postIndex].comments) posts[postIndex].comments=[];
+  posts[postIndex].comments.push({name,text,date:new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'})});
+  savePosts();
+  nameInput.value=''; textInput.value='';
+  alert('Comment added!');
+}
+function renderComments(postIndex){
+  const commentList=document.getElementById(`comments-post-${postIndex}`);
+  commentList.innerHTML=posts[postIndex].comments.map(c=>`<div class="comment"><strong>${c.name}</strong> (${c.date}):<br>${c.text}</div>`).join('');
+}
+
+/* Subscribe */
 function subscribe(){
   const email=document.getElementById('subscriber-email').value.trim();
   if(!email) return;
   if(!subscribers.includes(email)) subscribers.push(email);
   localStorage.setItem('poligeistSubscribers', JSON.stringify(subscribers));
   document.getElementById('thank-you-msg').style.display='block';
+  setTimeout(()=>{document.getElementById('thank-you-msg').style.display='none';},3000);
   document.getElementById('subscriber-email').value='';
 }
 

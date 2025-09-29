@@ -236,16 +236,56 @@ function savePosts(){
 }
 
 function renderPosts(){
-  const categories={'about':'About','politics':'Politics','japanese':'Japanese'};
-  const featuredContainer=document.getElementById('featuredPost');
-  if(posts.length===0){
-    featuredContainer.innerHTML=`<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>`;
-  } else {
-    const latest=posts[0];
-    const categoryNames={'about':'About This Page','politics':'Politics','japanese':'Japanese Supernatural Culture'};
-    const preview=latest.content.substring(0,400)+(latest.content.length>400?'...':'');
-    featuredContainer.innerHTML=`<article class="featured-post"><span class="featured-label">Latest Article</span><h2>${latest.title}<span class="category-badge">${categoryNames[latest.category]}</span></h2><div class="post-meta">${latest.date}</div><div class="post-content">${preview}</div><a href="#" class="read-more" onclick="openFullPost(0); return false;">Read full article →</a></article>`;
+  const categories = ["about","politics","japanese"];
+  const categoryNames = {
+    about: "About This Page",
+    politics: "Politics",
+    japanese: "Japanese Supernatural Culture"
+  };
+
+  // Featured post (raw category shown)
+  if(posts.length > 0){
+    const latest = posts[0];
+    document.getElementById('featured').innerHTML = `
+      <div class="featured-post">
+        <span class="featured-label">Latest Article</span>
+        <h2>${latest.title}</h2>
+        <span class="category-badge">${latest.category}</span>
+        <div class="post-meta">${latest.date}</div>
+        <div class="post-content">${latest.content.substring(0,200)}...</div>
+        <a href="#" class="read-more" onclick="openFullPost(0); return false;">Read full article →</a>
+      </div>
+    `;
   }
+
+  // Posts by category (cleaner layout with mapped display name)
+  categories.forEach(cat=>{
+    const container = document.getElementById(cat+"-posts");
+    container.innerHTML = "";
+    posts.filter(p=>p.category===cat).forEach((post,idx)=>{
+      container.innerHTML += `
+        <div class="post">
+          <h2>${post.title}</h2>
+          <span class="category-badge">${categoryNames[post.category]}</span>
+          <div class="post-meta">${post.date}</div>
+          <div class="post-content">${post.content.substring(0,200)}...</div>
+          <a href="#" class="read-more" onclick="openFullPost(${idx}); return false;">Read full article →</a>
+          <div class="comments-section" id="comments-${idx}">
+            <h3>Comments</h3>
+            <div id="comments-list-${idx}"></div>
+            <form onsubmit="addComment(event, ${idx})">
+              <input type="text" placeholder="Your name" required />
+              <textarea placeholder="Your comment" required></textarea>
+              <button type="submit">Post Comment</button>
+            </form>
+          </div>
+        </div>
+      `;
+      renderComments(idx);
+    });
+  });
+}
+
 
   Object.keys(categories).forEach(category=>{
     const container=document.getElementById('posts'+categories[category]);

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,7 +18,6 @@
             border-bottom: 4px solid #98A1BC;
         }
 
-        /* Titles */
         h1 { font-size:3rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
         .subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
 
@@ -30,13 +29,27 @@
             z-index: 100;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: center; gap: 0; }
-        .nav-tab {
-            flex: 1; padding: 1rem 2rem; background: transparent; border: none; cursor: pointer;
-            font-size: 1rem; font-weight: 600; color: #ecf0f1; transition: all 0.3s;
-            border-bottom: 3px solid transparent; font-family: Georgia, serif;
+        .nav-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 0;
         }
-        .nav-tab:hover { background: #6a6d8c; color: white; }
+        .nav-tab {
+            flex: 1;
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ecf0f1;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-family: Georgia, serif;
+        }
+        .nav-tab:hover { background: #6a6d8c; color:white; }
         .nav-tab.active { background: #6a6d8c; border-bottom-color: #98A1BC; }
 
         /* Main container */
@@ -44,18 +57,13 @@
         .tab-content { display:none; }
         .tab-content.active { display:block; }
 
-        /* Admin toggle and panel */
+        /* Admin panel toggle */
         .admin-toggle { text-align:center; margin:2rem 0; }
-        .toggle-btn {
-            background:#95a5a6; color:white; border:none; padding:0.75rem 1.5rem; font-size:0.95rem;
-            border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif;
-        }
+        .toggle-btn { background:#95a5a6; color:white; border:none; padding:0.75rem 1.5rem; font-size:0.95rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; }
         .toggle-btn:hover { background:#7f8c8d; }
 
-        .admin-panel {
-            background:white; margin:2rem 0; padding:2rem; border-radius:4px;
-            box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC;
-        }
+        /* Admin panel form */
+        .admin-panel { background:white; margin:2rem 0; padding:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
         .admin-panel h2 { font-size:1.8rem; margin-bottom:1.5rem; color:#2c3e50; }
         .form-group { margin-bottom:1.5rem; }
         label { display:block; font-weight:600; margin-bottom:0.5rem; color:#2c3e50; font-size:1rem; }
@@ -103,9 +111,21 @@
         .comments-section form input, .comments-section form textarea { margin-bottom:0.5rem; }
         .comment { background:#f2f2f2; padding:0.5rem 0.75rem; border-radius:4px; margin-bottom:0.5rem; }
 
-        /* Footer icons hover */
-        .footer-icon svg { transition: fill 0.3s; }
-        .footer-icon:hover svg { fill: #98A1BC; }
+        /* Footer */
+        footer {
+            background:#555879;
+            color:white;
+            text-align:center;
+            padding:2rem 1rem;
+            margin-top:3rem;
+        }
+        .footer-icons img {
+            width:32px;
+            height:32px;
+            margin:0 0.5rem;
+            cursor:pointer;
+            vertical-align:middle;
+        }
     </style>
 </head>
 <body>
@@ -125,40 +145,12 @@
 </nav>
 
 <div class="container">
-    <!-- Tabs content -->
-    <div id="homeTab" class="tab-content active">
-        <div id="featuredPost">
-            <div class="empty-state">
-                <h3>Welcome to The PoliGeist</h3>
-                <p>No articles published yet. Toggle the admin panel to create your first post!</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="aboutTab" class="tab-content">
-        <div id="postsAbout">
-            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
-        </div>
-    </div>
-
-    <div id="politicsTab" class="tab-content">
-        <div id="postsPolitics">
-            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
-        </div>
-    </div>
-
-    <div id="japaneseTab" class="tab-content">
-        <div id="postsJapanese">
-            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
-        </div>
-    </div>
-
-    <!-- Admin Panel Toggle -->
-    <div class="admin-toggle">
+    <!-- Password-protected admin toggle -->
+    <div class="admin-toggle" id="adminToggleContainer" style="display:none;">
         <button class="toggle-btn" onclick="toggleAdmin()">Toggle Admin Panel</button>
     </div>
+    <button class="toggle-btn" onclick="showAdminPrompt()" style="margin:1rem auto; display:block;">Admin Login</button>
 
-    <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel" style="display:none;">
         <h2>Add New Post</h2>
         <form id="postForm">
@@ -183,26 +175,26 @@
         </form>
     </div>
 
-    <!-- Subscribe Box -->
+    <!-- Tabs content -->
+    <div id="homeTab" class="tab-content active"><div id="featuredPost"></div></div>
+    <div id="aboutTab" class="tab-content"><div id="postsAbout"></div></div>
+    <div id="politicsTab" class="tab-content"><div id="postsPolitics"></div></div>
+    <div id="japaneseTab" class="tab-content"><div id="postsJapanese"></div></div>
+
+    <!-- Subscribe box -->
     <div id="subscribe-box">
         <input type="email" id="subscriber-email" placeholder="Enter your email" required>
-        <button class="subscribe-btn" onclick="subscribe()">Subscribe</button>
+        <button onclick="subscribe()">Subscribe</button>
         <div class="thank-you" id="thank-you-msg">Thank you for subscribing!</div>
     </div>
 </div>
 
-<!-- Footer with Inline SVGs -->
-<footer style="text-align:center; padding:2rem 0; background:#555879; color:white; margin-top:3rem;">
-    <a href="https://www.linkedin.com/in/madeline-paul-shrader569514369" target="_blank" class="footer-icon" style="margin:0 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
-            <path d="M4.98 3.5C3.34 3.5 2 4.84 2 6.48s1.34 2.98 2.98 2.98c1.64 0 2.98-1.34 2.98-2.98S6.62 3.5 4.98 3.5zM2.4 21.5h5.16v-11H2.4v11zM9.5 10.5h4.96v1.52h.07c.69-1.31 2.38-2.7 4.9-2.7 5.25 0 6.22 3.46 6.22 7.97v9.21h-5.16v-8.16c0-1.95-.04-4.46-2.72-4.46-2.72 0-3.13 2.12-3.13 4.32v8.3H9.5v-11z"/>
-        </svg>
-    </a>
-    <a href="mailto:madeline.shrader@gmail.com" class="footer-icon" style="margin:0 1rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
-            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-        </svg>
-    </a>
+<!-- Footer -->
+<footer>
+    <div class="footer-icons">
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" onclick="window.open('https://www.linkedin.com/in/madeline-paul-shrader569514369','_blank')">
+        <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" onclick="window.location='mailto:madeline.shrader@gmail.com'">
+    </div>
 </footer>
 
 <script>
@@ -236,8 +228,9 @@ function savePosts(){
 function renderPosts(){
     const categories={'about':'About','politics':'Politics','japanese':'Japanese'};
     const featuredContainer=document.getElementById('featuredPost');
-    if(posts.length===0){featuredContainer.innerHTML=`<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>`;}
-    else{
+    if(posts.length===0){
+        featuredContainer.innerHTML='<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>';
+    } else {
         const latest=posts[0];
         const categoryNames={'about':'About','politics':'Politics','japanese':'Japanese Supernatural Culture'};
         const preview=latest.content.substring(0,400)+(latest.content.length>400?'...':'');
@@ -246,8 +239,9 @@ function renderPosts(){
     Object.keys(categories).forEach(category=>{
         const container=document.getElementById('posts'+categories[category]);
         const catPosts=posts.filter(p=>p.category===category);
-        if(catPosts.length===0){container.innerHTML=`<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>`;}
-        else{
+        if(catPosts.length===0){
+            container.innerHTML='<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>';
+        } else {
             container.innerHTML=catPosts.map(post=>{
                 const idx=posts.indexOf(post);
                 return `<article class="post"><h2>${escapeHtml(post.title)}</h2><div class="post-meta">${post.date}</div><div class="post-content">${escapeHtml(post.content)}</div><div class="comments-section"><h4>Comments</h4><div class="comments-list" id="comments-post-${idx}"></div><form onsubmit="addComment(event,${idx})"><input type="text" id="commentName-${idx}" placeholder="Your name" required><textarea id="commentText-${idx}" placeholder="Your comment" required></textarea><button type="submit">Add Comment</button></form></div><button class="delete-btn" onclick="deletePost(${idx})">Delete</button></article>`;
@@ -277,6 +271,16 @@ function deletePost(index){if(confirm('Are you sure you want to delete this post
 
 /* Admin Panel */
 function toggleAdmin(){const panel=document.getElementById('adminPanel');panel.style.display=panel.style.display==='none'?'block':'none';}
+
+/* Password-protected admin */
+const ADMIN_PASSWORD = 'PoliGeist123';
+function showAdminPrompt() {
+    const input = prompt("Enter admin password:");
+    if(input === ADMIN_PASSWORD){
+        document.getElementById('adminToggleContainer').style.display = 'block';
+        alert("Admin panel unlocked!");
+    } else if(input !== null) { alert("Incorrect password."); }
+}
 
 /* Export Posts */
 function exportPosts(){const dataStr=JSON.stringify(posts,null,2);const blob=new Blob([dataStr],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='poligeist-blog-posts.json';link.click();URL.revokeObjectURL(url);}
@@ -311,26 +315,22 @@ function addComment(e,postIndex){
 }
 function renderComments(postIndex){
     const container=document.getElementById(`comments-post-${postIndex}`);
-    if(!container) return;
-    const comments=posts[postIndex].comments||[];
-    container.innerHTML=comments.map(c=>`<div class="comment"><strong>${escapeHtml(c.name)}</strong> <em>${c.date}</em><p>${escapeHtml(c.text)}</p></div>`).join('');
+    container.innerHTML=posts[postIndex].comments.map(c=>`<div class="comment"><strong>${escapeHtml(c.name)}</strong> (${c.date}):<br>${escapeHtml(c.text)}</div>`).join('');
 }
 
-/* Subscription */
+/* Subscribe */
 function subscribe(){
-    const emailInput=document.getElementById('subscriber-email');
-    const email=emailInput.value.trim();
+    const email=document.getElementById('subscriber-email').value.trim();
     if(!email) return;
     if(!subscribers.includes(email)){
         subscribers.push(email);
         localStorage.setItem('poligeistSubscribers', JSON.stringify(subscribers));
-        document.getElementById('thank-you-msg').style.display='block';
-        emailInput.value='';
-    } else {
-        alert('You are already subscribed.');
     }
+    document.getElementById('thank-you-msg').style.display='block';
+    document.getElementById('subscriber-email').value='';
 }
 
+/* Initial render */
 renderPosts();
 </script>
 </body>

@@ -1,192 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The PoliGeist – Politics, Culture, and the Supernatural</title>
-<style>
-/* --- Reset & Base --- */
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Georgia, 'Times New Roman', serif; line-height:1.8; color:#333; background:#f9f9f9; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The PoliGeist – Politics, Culture, and the Supernatural</title>
+    <style>
+        /* Reset and base styles */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: Georgia, 'Times New Roman', serif; line-height:1.8; color:#333; background:#f9f9f9; }
 
-/* --- Header --- */
-header {
-    background: #555879;
-    color: white;
-    padding: 2.5rem 0;
-    text-align: center;
-    border-bottom: 4px solid #98A1BC;
-}
-h1 { font-size:3rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
-.subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
+        /* Header */
+        header {
+            background: #555879;
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+            border-bottom: 4px solid #98A1BC;
+        }
 
-/* --- Nav --- */
-nav {
-    background: #555879;
-    position: sticky;
-    top:0;
-    z-index:100;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.nav-container {
-    max-width: 1000px;
-    margin:0 auto;
-    display:flex;
-    justify-content:center;
-    gap:0;
-}
-.nav-tab {
-    flex:1;
-    padding:1rem 2rem;
-    background:transparent;
-    border:none;
-    cursor:pointer;
-    font-size:1rem;
-    font-weight:600;
-    color:#ecf0f1;
-    transition:all 0.3s;
-    border-bottom:3px solid transparent;
-    font-family:Georgia, serif;
-}
-.nav-tab:hover { background:#6a6d8c; color:white; }
-.nav-tab.active { background:#6a6d8c; border-bottom-color:#98A1BC; }
+        /* Titles */
+        h1 { font-size:3rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
+        .subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
 
-/* --- Main Container --- */
-.container { max-width:900px; margin:0 auto; padding:2rem 20px; }
+        /* Nav */
+        nav {
+            background: #555879;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .nav-container { max-width: 1000px; margin: 0 auto; display: flex; justify-content: center; gap: 0; }
+        .nav-tab {
+            flex: 1; padding: 1rem 2rem; background: transparent; border: none; cursor: pointer;
+            font-size: 1rem; font-weight: 600; color: #ecf0f1; transition: all 0.3s;
+            border-bottom: 3px solid transparent; font-family: Georgia, serif;
+        }
+        .nav-tab:hover { background: #6a6d8c; color: white; }
+        .nav-tab.active { background: #6a6d8c; border-bottom-color: #98A1BC; }
 
-/* --- Tabs Content --- */
-.tab-content { display:none; }
-.tab-content.active { display:block; }
+        /* Main container */
+        .container { max-width:900px; margin:0 auto; padding:2rem 20px; }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
 
-/* --- Admin Panel Toggle --- */
-.admin-toggle { text-align:center; margin:2rem 0; }
-.toggle-btn { background:#95a5a6; color:white; border:none; padding:0.75rem 1.5rem; font-size:0.95rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; }
-.toggle-btn:hover { background:#7f8c8d; }
+        /* Admin toggle and panel */
+        .admin-toggle { text-align:center; margin:2rem 0; }
+        .toggle-btn {
+            background:#95a5a6; color:white; border:none; padding:0.75rem 1.5rem; font-size:0.95rem;
+            border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif;
+        }
+        .toggle-btn:hover { background:#7f8c8d; }
 
-/* --- Admin Panel Form --- */
-.admin-panel { background:white; margin:2rem 0; padding:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
-.admin-panel h2 { font-size:1.8rem; margin-bottom:1.5rem; color:#2c3e50; }
-.form-group { margin-bottom:1.5rem; }
-label { display:block; font-weight:600; margin-bottom:0.5rem; color:#2c3e50; font-size:1rem; }
-input, textarea, select { width:100%; padding:0.75rem; border:1px solid #bdc3c7; border-radius:4px; font-size:1rem; font-family:Georgia, serif; transition:border-color 0.3s; }
-select { background:white; cursor:pointer; }
-input:focus, textarea:focus, select:focus { outline:none; border-color:#98A1BC; }
-textarea { min-height:200px; resize:vertical; }
+        .admin-panel {
+            background:white; margin:2rem 0; padding:2rem; border-radius:4px;
+            box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC;
+        }
+        .admin-panel h2 { font-size:1.8rem; margin-bottom:1.5rem; color:#2c3e50; }
+        .form-group { margin-bottom:1.5rem; }
+        label { display:block; font-weight:600; margin-bottom:0.5rem; color:#2c3e50; font-size:1rem; }
+        input, textarea, select { width:100%; padding:0.75rem; border:1px solid #bdc3c7; border-radius:4px; font-size:1rem; font-family:Georgia, serif; transition:border-color 0.3s; }
+        select { background:white; cursor:pointer; }
+        input:focus, textarea:focus, select:focus { outline:none; border-color:#98A1BC; }
+        textarea { min-height:200px; resize:vertical; }
 
-/* --- Buttons --- */
-button[type="submit"], .subscribe-btn { background:#98A1BC; color:white; border:none; padding:0.75rem 2rem; font-size:1rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; font-weight:600; }
-button[type="submit"]:hover, .subscribe-btn:hover { background:#7f879c; }
-.export-btn { background:#27ae60; margin-left:1rem; }
-.export-btn:hover { background:#229954; }
+        /* Buttons */
+        button[type="submit"], .subscribe-btn { background:#98A1BC; color:white; border:none; padding:0.75rem 2rem; font-size:1rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; font-weight:600; }
+        button[type="submit"]:hover, .subscribe-btn:hover { background:#7f879c; }
+        .export-btn { background:#27ae60; margin-left:1rem; }
+        .export-btn:hover { background:#229954; }
 
-/* --- Posts --- */
-.post { background:white; padding:2.5rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
-.post h2 { font-size:2rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.3; }
-.post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
-.post-content { color:#34495e; font-size:1.1rem; line-height:1.8; white-space:pre-wrap; }
-.delete-btn { background:#95a5a6; color:white; border:none; padding:0.5rem 1rem; font-size:0.9rem; border-radius:4px; cursor:pointer; margin-top:1rem; transition:background 0.3s; font-family:Georgia, serif; }
-.delete-btn:hover { background:#7f8c8d; }
+        /* Posts */
+        .post { background:white; padding:2.5rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
+        .post h2 { font-size:2rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.3; }
+        .post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
+        .post-content { color:#34495e; font-size:1.1rem; line-height:1.8; white-space:pre-wrap; }
+        .delete-btn { background:#95a5a6; color:white; border:none; padding:0.5rem 1rem; font-size:0.9rem; border-radius:4px; cursor:pointer; margin-top:1rem; transition:background 0.3s; font-family:Georgia, serif; }
+        .delete-btn:hover { background:#7f8c8d; }
 
-/* --- Empty States --- */
-.empty-state { text-align:center; padding:4rem 2rem; color:#95a5a6; background:white; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-.empty-state h3 { font-size:1.8rem; margin-bottom:1rem; color:#7f8c8d; }
-.empty-state p { font-size:1.1rem; }
+        /* Empty states */
+        .empty-state { text-align:center; padding:4rem 2rem; color:#95a5a6; background:white; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+        .empty-state h3 { font-size:1.8rem; margin-bottom:1rem; color:#7f8c8d; }
+        .empty-state p { font-size:1.1rem; }
 
-/* --- Featured Post --- */
-.featured-post { background:white; padding:3rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-left:6px solid #98A1BC; }
-.featured-label { display:inline-block; background:#98A1BC; color:white; padding:0.4rem 1rem; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; border-radius:3px; }
-.featured-post h2 { font-size:2.5rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.2; }
-.featured-post .post-meta { color:#7f8c8d; font-size:1rem; margin-bottom:1.5rem; font-style:italic; }
-.featured-post .post-content { color:#34495e; font-size:1.15rem; line-height:1.9; margin-bottom:1.5rem; }
-.read-more { display:inline-block; color:#98A1BC; font-weight:600; text-decoration:none; font-size:1.1rem; transition:color 0.3s; }
-.read-more:hover { color:#7f879c; }
-.category-badge { display:inline-block; background:#98A1BC; color:white; padding:0.3rem 0.8rem; font-size:0.85rem; border-radius:3px; margin-left:0.5rem; text-transform:capitalize; }
+        /* Featured post */
+        .featured-post { background:white; padding:3rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-left:6px solid #98A1BC; }
+        .featured-label { display:inline-block; background:#98A1BC; color:white; padding:0.4rem 1rem; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; border-radius:3px; }
+        .featured-post h2 { font-size:2.5rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.2; }
+        .featured-post .post-meta { color:#7f8c8d; font-size:1rem; margin-bottom:1.5rem; font-style:italic; }
+        .featured-post .post-content { color:#34495e; font-size:1.15rem; line-height:1.9; margin-bottom:1.5rem; }
+        .read-more { display:inline-block; color:#98A1BC; font-weight:600; text-decoration:none; font-size:1.1rem; transition:color 0.3s; }
+        .read-more:hover { color:#7f879c; }
+        .category-badge { display:inline-block; background:#98A1BC; color:white; padding:0.3rem 0.8rem; font-size:0.85rem; border-radius:3px; margin-left:0.5rem; text-transform:capitalize; }
 
-/* --- Subscribe Box --- */
-#subscribe-box { text-align:center; margin:3rem 0; }
-#subscribe-box input[type=email] { max-width:300px; margin-right:0.5rem; }
-.thank-you { color:#98A1BC; font-weight:600; margin-top:1rem; display:none; }
+        /* Subscribe box */
+        #subscribe-box { text-align:center; margin:3rem 0; }
+        #subscribe-box input[type=email] { max-width:300px; margin-right:0.5rem; }
+        .thank-you { color:#98A1BC; font-weight:600; margin-top:1rem; display:none; }
 
-/* --- Comments --- */
-.comments-section { margin-top:1.5rem; border-top:1px solid #ccc; padding-top:1rem; }
-.comments-section form input, .comments-section form textarea { margin-bottom:0.5rem; }
-.comment { background:#f2f2f2; padding:0.5rem 0.75rem; border-radius:4px; margin-bottom:0.5rem; }
-</style>
+        /* Comments */
+        .comments-section { margin-top:1.5rem; border-top:1px solid #ccc; padding-top:1rem; }
+        .comments-section form input, .comments-section form textarea { margin-bottom:0.5rem; }
+        .comment { background:#f2f2f2; padding:0.5rem 0.75rem; border-radius:4px; margin-bottom:0.5rem; }
+
+        /* Footer icons hover */
+        .footer-icon svg { transition: fill 0.3s; }
+        .footer-icon:hover svg { fill: #98A1BC; }
+    </style>
 </head>
 <body>
 <header>
-<h1>The PoliGeist</h1>
-<p class="subtitle">Politics, Culture, and the Supernatural</p>
-<div id="jst-clock" style="margin-top:0.5rem; font-size:0.95rem; opacity:0.85;"></div>
+    <h1>The PoliGeist</h1>
+    <p class="subtitle">Politics, Culture, and the Supernatural</p>
+    <div id="jst-clock" style="margin-top:0.5rem; font-size:0.95rem; opacity:0.85;"></div>
 </header>
 
 <nav>
-<div class="nav-container">
-    <button class="nav-tab active" onclick="switchTab('home')">Home</button>
-    <button class="nav-tab" onclick="switchTab('about')">About</button>
-    <button class="nav-tab" onclick="switchTab('politics')">Politics</button>
-    <button class="nav-tab" onclick="switchTab('japanese')">Japanese Supernatural Culture</button>
-</div>
+    <div class="nav-container">
+        <button class="nav-tab active" onclick="switchTab('home')">Home</button>
+        <button class="nav-tab" onclick="switchTab('about')">About</button>
+        <button class="nav-tab" onclick="switchTab('politics')">Politics</button>
+        <button class="nav-tab" onclick="switchTab('japanese')">Japanese Supernatural Culture</button>
+    </div>
 </nav>
 
 <div class="container">
-
-<!-- Admin Toggle (hidden by default) -->
-<div class="admin-toggle" id="adminToggleContainer" style="display:none;">
-    <button class="toggle-btn" onclick="toggleAdmin()">Toggle Admin Panel</button>
-</div>
-
-<!-- Admin Panel -->
-<div class="admin-panel" id="adminPanel" style="display:none;">
-<h2>Add New Post</h2>
-<form id="postForm">
-    <div class="form-group">
-        <label for="category">Category</label>
-        <select id="category" required>
-            <option value="about">About</option>
-            <option value="politics">Politics</option>
-            <option value="japanese">Japanese Supernatural Culture</option>
-        </select>
+    <!-- Tabs content -->
+    <div id="homeTab" class="tab-content active">
+        <div id="featuredPost">
+            <div class="empty-state">
+                <h3>Welcome to The PoliGeist</h3>
+                <p>No articles published yet. Toggle the admin panel to create your first post!</p>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" id="title" required>
+
+    <div id="aboutTab" class="tab-content">
+        <div id="postsAbout">
+            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="content">Content</label>
-        <textarea id="content" required></textarea>
+
+    <div id="politicsTab" class="tab-content">
+        <div id="postsPolitics">
+            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
+        </div>
     </div>
-    <button type="submit">Publish Post</button>
-    <button type="button" class="export-btn" onclick="exportPosts()">Export Data</button>
-</form>
+
+    <div id="japaneseTab" class="tab-content">
+        <div id="postsJapanese">
+            <div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Toggle -->
+    <div class="admin-toggle">
+        <button class="toggle-btn" onclick="toggleAdmin()">Toggle Admin Panel</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel" style="display:none;">
+        <h2>Add New Post</h2>
+        <form id="postForm">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="about">About</option>
+                    <option value="politics">Politics</option>
+                    <option value="japanese">Japanese Supernatural Culture</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Content</label>
+                <textarea id="content" required></textarea>
+            </div>
+            <button type="submit">Publish Post</button>
+            <button type="button" class="export-btn" onclick="exportPosts()">Export Data</button>
+        </form>
+    </div>
+
+    <!-- Subscribe Box -->
+    <div id="subscribe-box">
+        <input type="email" id="subscriber-email" placeholder="Enter your email" required>
+        <button class="subscribe-btn" onclick="subscribe()">Subscribe</button>
+        <div class="thank-you" id="thank-you-msg">Thank you for subscribing!</div>
+    </div>
 </div>
 
-<!-- Tabs -->
-<div id="homeTab" class="tab-content active"><div id="featuredPost"></div></div>
-<div id="aboutTab" class="tab-content"><div id="postsAbout"></div></div>
-<div id="politicsTab" class="tab-content"><div id="postsPolitics"></div></div>
-<div id="japaneseTab" class="tab-content"><div id="postsJapanese"></div></div>
-
-<!-- Subscribe -->
-<div id="subscribe-box">
-<input type="email" id="subscriber-email" placeholder="Enter your email" required>
-<button class="subscribe-btn" onclick="subscribe()">Subscribe</button>
-<div class="thank-you" id="thank-you-msg">Thank you for subscribing!</div>
-</div>
-</div>
+<!-- Footer with Inline SVGs -->
+<footer style="text-align:center; padding:2rem 0; background:#555879; color:white; margin-top:3rem;">
+    <a href="https://www.linkedin.com/in/madeline-paul-shrader569514369" target="_blank" class="footer-icon" style="margin:0 1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+            <path d="M4.98 3.5C3.34 3.5 2 4.84 2 6.48s1.34 2.98 2.98 2.98c1.64 0 2.98-1.34 2.98-2.98S6.62 3.5 4.98 3.5zM2.4 21.5h5.16v-11H2.4v11zM9.5 10.5h4.96v1.52h.07c.69-1.31 2.38-2.7 4.9-2.7 5.25 0 6.22 3.46 6.22 7.97v9.21h-5.16v-8.16c0-1.95-.04-4.46-2.72-4.46-2.72 0-3.13 2.12-3.13 4.32v8.3H9.5v-11z"/>
+        </svg>
+    </a>
+    <a href="mailto:madeline.shrader@gmail.com" class="footer-icon" style="margin:0 1rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.89 2 1.99 2H20c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+    </a>
+</footer>
 
 <script>
-/* --- Clock --- */
-function updateClock(){
-    const now = new Date(new Date().toLocaleString("en-US",{timeZone:"Asia/Tokyo"}));
-    const options={ weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' };
+let posts = JSON.parse(localStorage.getItem('poligeistPosts')) || [];
+let subscribers = JSON.parse(localStorage.getItem('poligeistSubscribers')) || [];
+let currentTab = 'home';
+
+/* JST Clock */
+function updateClock() {
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone:"Asia/Tokyo"}));
+    const options = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' };
     document.getElementById('jst-clock').textContent = now.toLocaleDateString('en-US', options);
 }
-setInterval(updateClock,1000);
+setInterval(updateClock, 1000);
 updateClock();
 
-/* --- Tabs --- */
-let currentTab = 'home';
+/* Tabs */
 function switchTab(tab){
     currentTab=tab;
     document.querySelectorAll('.nav-tab').forEach(btn=>btn.classList.remove('active'));
@@ -195,55 +228,42 @@ function switchTab(tab){
     document.getElementById(tab+'Tab').classList.add('active');
 }
 
-/* --- Posts & Comments --- */
-let posts = JSON.parse(localStorage.getItem('poligeistPosts'))||[];
-
-function savePosts(){ localStorage.setItem('poligeistPosts',JSON.stringify(posts)); renderPosts(); }
-
-function escapeHtml(text){ const div=document.createElement('div'); div.textContent=text; return div.innerHTML; }
-
-function renderComments(postIndex){
-    const container=document.getElementById(`comments-post-${postIndex}`);
-    if(!container) return;
-    container.innerHTML='';
-    const c=posts[postIndex].comments||[];
-    c.forEach(comment=>{
-        const div=document.createElement('div');
-        div.className='comment';
-        div.innerHTML=`<strong>${escapeHtml(comment.name)}</strong> <em>${comment.date}</em><br>${escapeHtml(comment.text)}`;
-        container.appendChild(div);
-    });
+/* Save & Render Posts */
+function savePosts(){
+    localStorage.setItem('poligeistPosts', JSON.stringify(posts));
+    renderPosts();
 }
-
 function renderPosts(){
     const categories={'about':'About','politics':'Politics','japanese':'Japanese'};
     const featuredContainer=document.getElementById('featuredPost');
-    if(posts.length===0){
-        featuredContainer.innerHTML=`<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>`;
-    } else {
+    if(posts.length===0){featuredContainer.innerHTML=`<div class="empty-state"><h3>Welcome to The PoliGeist</h3><p>No articles published yet. Toggle the admin panel to create your first post!</p></div>`;}
+    else{
         const latest=posts[0];
+        const categoryNames={'about':'About','politics':'Politics','japanese':'Japanese Supernatural Culture'};
         const preview=latest.content.substring(0,400)+(latest.content.length>400?'...':'');
-        featuredContainer.innerHTML=`<article class="featured-post"><span class="featured-label">Latest Article</span><h2>${escapeHtml(latest.title)}<span class="category-badge">${categories[latest.category]}</span></h2><div class="post-meta">${latest.date}</div><div class="post-content">${escapeHtml(preview)}</div><a href="#" class="read-more" onclick="switchToCategory('${latest.category}'); return false;">Read full article →</a></article>`;
+        featuredContainer.innerHTML=`<article class="featured-post"><span class="featured-label">Latest Article</span><h2>${escapeHtml(latest.title)}<span class="category-badge">${categoryNames[latest.category]}</span></h2><div class="post-meta">${latest.date}</div><div class="post-content">${escapeHtml(preview)}</div><a href="#" class="read-more" onclick="switchToCategory('${latest.category}'); return false;">Read full article →</a></article>`;
     }
     Object.keys(categories).forEach(category=>{
         const container=document.getElementById('posts'+categories[category]);
         const catPosts=posts.filter(p=>p.category===category);
-        if(catPosts.length===0){
-            container.innerHTML=`<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>`;
-        } else {
-            container.innerHTML=catPosts.map((post,idx)=>`<article class="post"><h2>${escapeHtml(post.title)}</h2><div class="post-meta">${post.date}</div><div class="post-content">${escapeHtml(post.content)}</div><div class="comments-section"><h4>Comments</h4><div class="comments-list" id="comments-post-${idx}"></div><form onsubmit="addComment(event,${idx})"><input type="text" id="commentName-${idx}" placeholder="Your name" required><textarea id="commentText-${idx}" placeholder="Your comment" required></textarea><button type="submit">Add Comment</button></form></div><button class="delete-btn" onclick="deletePost(${idx})">Delete</button></article>`).join('');
-            catPosts.forEach((_,idx)=>renderComments(idx));
+        if(catPosts.length===0){container.innerHTML=`<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>`;}
+        else{
+            container.innerHTML=catPosts.map(post=>{
+                const idx=posts.indexOf(post);
+                return `<article class="post"><h2>${escapeHtml(post.title)}</h2><div class="post-meta">${post.date}</div><div class="post-content">${escapeHtml(post.content)}</div><div class="comments-section"><h4>Comments</h4><div class="comments-list" id="comments-post-${idx}"></div><form onsubmit="addComment(event,${idx})"><input type="text" id="commentName-${idx}" placeholder="Your name" required><textarea id="commentText-${idx}" placeholder="Your comment" required></textarea><button type="submit">Add Comment</button></form></div><button class="delete-btn" onclick="deletePost(${idx})">Delete</button></article>`;
+            }).join('');
+            catPosts.forEach(post=>renderComments(posts.indexOf(post)));
         }
     });
 }
 
-/* --- Post Form --- */
+/* Post Form */
 document.getElementById('postForm').addEventListener('submit',function(e){
     e.preventDefault();
     const category=document.getElementById('category').value;
     const title=document.getElementById('title').value;
     const content=document.getElementById('content').value;
-    const post={category,title,content,date:new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),timestamp:Date.now(),comments:[]};
+    const post={category,title,content,date:new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),timestamp:Date.now(),comments:[]};
     posts.unshift(post);
     savePosts();
     document.getElementById('category').value='about';
@@ -252,29 +272,30 @@ document.getElementById('postForm').addEventListener('submit',function(e){
     alert('Post published successfully!');
 });
 
-/* --- Delete Post --- */
-function deletePost(index){ if(confirm('Are you sure you want to delete this post?')){ posts.splice(index,1); savePosts(); } }
+/* Delete Post */
+function deletePost(index){if(confirm('Are you sure you want to delete this post?')){posts.splice(index,1);savePosts();}}
 
-/* --- Admin Panel --- */
-function toggleAdmin(){ const panel=document.getElementById('adminPanel'); panel.style.display=panel.style.display==='none'?'block':'none'; }
+/* Admin Panel */
+function toggleAdmin(){const panel=document.getElementById('adminPanel');panel.style.display=panel.style.display==='none'?'block':'none';}
 
-/* --- Export Posts --- */
-function exportPosts(){ const dataStr=JSON.stringify(posts,null,2); const blob=new Blob([dataStr],{type:'application/json'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download='poligeist-blog-posts.json'; link.click(); URL.revokeObjectURL(url); }
+/* Export Posts */
+function exportPosts(){const dataStr=JSON.stringify(posts,null,2);const blob=new Blob([dataStr],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='poligeist-blog-posts.json';link.click();URL.revokeObjectURL(url);}
 
-/* --- Switch Tabs --- */
+/* Escape HTML */
+function escapeHtml(text){const div=document.createElement('div');div.textContent=text;return div.innerHTML;}
+
+/* Switch to category tab */
 function switchToCategory(category){
     const tabMap={'about':'about','politics':'politics','japanese':'japanese'};
     const tab=tabMap[category];
     document.querySelectorAll('.nav-tab').forEach(btn=>btn.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(btn=>{
-        if(btn.textContent.toLowerCase().includes(category)||(category==='japanese'&&btn.textContent.includes('Japanese'))){btn.classList.add('active');}
-    });
+    document.querySelectorAll('.nav-tab').forEach(btn=>{if(btn.textContent.toLowerCase().includes(category)||(category==='japanese'&&btn.textContent.includes('Japanese'))){btn.classList.add('active');}});
     document.querySelectorAll('.tab-content').forEach(content=>content.classList.remove('active'));
     document.getElementById(tab+'Tab').classList.add('active');
     window.scrollTo({top:0,behavior:'smooth'});
 }
 
-/* --- Comments --- */
+/* Comments */
 function addComment(e,postIndex){
     e.preventDefault();
     const nameInput=document.getElementById(`commentName-${postIndex}`);
@@ -288,34 +309,28 @@ function addComment(e,postIndex){
     nameInput.value=''; textInput.value='';
     alert('Comment added!');
 }
+function renderComments(postIndex){
+    const container=document.getElementById(`comments-post-${postIndex}`);
+    if(!container) return;
+    const comments=posts[postIndex].comments||[];
+    container.innerHTML=comments.map(c=>`<div class="comment"><strong>${escapeHtml(c.name)}</strong> <em>${c.date}</em><p>${escapeHtml(c.text)}</p></div>`).join('');
+}
 
-/* --- Subscriptions --- */
-let subscribers = JSON.parse(localStorage.getItem('poligeistSubscribers'))||[];
+/* Subscription */
 function subscribe(){
     const emailInput=document.getElementById('subscriber-email');
     const email=emailInput.value.trim();
     if(!email) return;
-    if(!subscribers.includes(email)) subscribers.push(email);
-    localStorage.setItem('poligeistSubscribers',JSON.stringify(subscribers));
-    emailInput.value='';
-    const thankYou=document.getElementById('thank-you-msg');
-    thankYou.style.display='block';
-    setTimeout(()=>thankYou.style.display='none',3000);
+    if(!subscribers.includes(email)){
+        subscribers.push(email);
+        localStorage.setItem('poligeistSubscribers', JSON.stringify(subscribers));
+        document.getElementById('thank-you-msg').style.display='block';
+        emailInput.value='';
+    } else {
+        alert('You are already subscribed.');
+    }
 }
 
-/* --- Admin Access Security --- */
-const ADMIN_KEY="poligeist123";
-function showAdminToggle(){ document.getElementById('adminToggleContainer').style.display="block"; }
-
-if(localStorage.getItem('poligeistAdmin')===ADMIN_KEY){
-    showAdminToggle();
-}else if(window.location.hash==="#admin="+ADMIN_KEY){
-    localStorage.setItem('poligeistAdmin',ADMIN_KEY);
-    showAdminToggle();
-    history.replaceState(null,null,' ');
-}
-
-/* --- Initial Render --- */
 renderPosts();
 </script>
 </body>

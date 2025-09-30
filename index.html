@@ -785,3 +785,210 @@ function goToFullArticle(category) {
 // ============================================
 // POST FORM
 // ============================================
+function initializeForm() {
+  const form = document.getElementById('postForm');
+  if (!form) return;
+  
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const category = document.getElementById('category').value;
+    const title = document.getElementById('title').value.trim();
+    const contentEl = document.getElementById('content');
+    const content = contentEl.innerHTML.trim();
+    
+    if (!title || !content) {
+      alert('Please fill in both title and content.');
+      return;
+    }
+    
+    const postData = {
+      category,
+      title,
+      content,
+      date: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    };
+    
+    const publishBtn = document.getElementById('publishBtn');
+    publishBtn.disabled = true;
+    publishBtn.textContent = 'Publishing...';
+    
+    const success = await savePost(postData);
+    
+    if (success) {
+      document.getElementById('category').value = 'about';
+      document.getElementById('title').value = '';
+      contentEl.innerHTML = '';
+      updateTitleCounter();
+      alert('Post published successfully!');
+    }
+    
+    publishBtn.disabled = false;
+    publishBtn.textContent = 'Publish Post';
+  });
+  
+  const titleInput = document.getElementById('title');
+  if (titleInput) {
+    titleInput.addEventListener('input', updateTitleCounter);
+  }
+}
+
+function updateTitleCounter() {
+  const titleInput = document.getElementById('title');
+  const counter = document.getElementById('titleCounter');
+  if (titleInput && counter) {
+    const length = titleInput.value.length;
+    counter.textContent = `${length} / 200`;
+  }
+}
+
+// ============================================
+// ADMIN AUTHENTICATION
+// ============================================
+async function toggleAdmin() {
+  const panel = document.getElementById('adminPanel');
+  const button = document.querySelector('.toggle-btn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  if (!panel || !button) return;
+  
+  const isHidden = panel.style.display === 'none';
+  
+  if (isHidden) {
+    if (!STATE.currentUser) {
+      const password = prompt('Enter admin password:');
+      if (password === STATE.adminPassword) {
+        STATE.currentUser = { authenticated: true };
+        panel.style.display = 'block';
+        button.setAttribute('aria-expanded', 'true');
+        button.textContent = 'Hide Admin Panel';
+        logoutBtn.style.display = 'inline-block';
+        renderPosts(); // Re-render to show delete buttons
+      } else if (password !== null) {
+        alert('Incorrect password. Access denied.');
+      }
+    } else {
+      panel.style.display = 'block';
+      button.setAttribute('aria-expanded', 'true');
+      button.textContent = 'Hide Admin Panel';
+    }
+  } else {
+    panel.style.display = 'none';
+    button.setAttribute('aria-expanded', 'false');
+    button.textContent = 'Admin Login';
+  }
+}
+
+function logout() {
+  STATE.currentUser = null;
+  const panel = document.getElementById('adminPanel');
+  const button = document.querySelector('.toggle-btn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  panel.style.display = 'none';
+  button.setAttribute('aria-expanded', 'false');
+  button.textContent = 'Admin Login';
+  logoutBtn.style.display = 'none';
+  
+  renderPosts(); // Re-render to hide delete buttons
+  alert('Logged out successfully.');
+}
+
+// ============================================
+// EXPORT POSTS
+// ============================================
+function exportPosts() {
+  try {
+    const dataStr = JSON.stringify(STATE.posts, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `poligeist-posts-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error('Error exporting posts:', e);
+    alert('Error exporting posts.');
+  }
+}
+
+// ============================================
+// TOOLBAR FUNCTIONS
+// ============================================
+function format(command) {
+  try {
+    document.execCommand(command, false, null);
+    document.getElementById('content').focus();
+  } catch (e) {
+    console.error('Error formatting text:', e);
+  }
+}
+
+function insertImage() {
+  const url = prompt("Enter image URL (must be hosted online):");
+  if (url && url.trim()) {
+    try {
+      new URL(url);
+      document.execCommand('insertImage', false, url.trim());
+      document.getElementById('content').focus();
+    } catch (e) {
+      alert('Please enter a valid URL.');
+    }
+  }
+}
+
+// ============================================
+// SUBSCRIPTION
+// ============================================
+async function subscribe(event) {
+  if (event) event.preventDefault();
+  
+  const emailInput = document.getElementById('subscriber-email');
+  const email = emailInput.value.trim();
+  
+  if (!email) return;
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  
+  const subscribeBtn = event.target.querySelector('.subscribe-btn');
+  subscribeBtn.disabled = true;
+  subscribeBtn.textContent = 'Subscribing...';
+  
+  const success = await saveSubscriber(email);
+  
+  if (success) {
+    const thankYouMsg = document.getElementById('thank-you-msg');
+    if (thankYouMsg) {
+      thankYouMsg.style.display = 'block';
+      setTimeout(() => {
+        thankYouMsg.style.display = 'none';
+      }, 5000);
+    }
+    emailInput.value = '';
+  }
+  
+  subscribeBtn.disabled = false;
+  subscribeBtn.textContent = 'Subscribe';
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  initializeForm();
+  loadPosts();
+  updateClock();
+  setInterval(updateClock, 1000);
+});
+</script>
+</body>
+</html>

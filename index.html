@@ -786,14 +786,6 @@ async function saveSubscriber(email) {
 
   try {
     const Subscriber = Parse.Object.extend('Subscriber');
-    const query = new Parse.Query(Subscriber);
-    query.equalTo('email', email);
-    const existing = await query.first();
-    
-    if (existing) {
-      return true; // Already subscribed
-    }
-    
     const subscriber = new Subscriber();
     subscriber.set('email', email);
     
@@ -807,6 +799,12 @@ async function saveSubscriber(email) {
     return true;
   } catch (error) {
     console.error('Error saving subscriber:', error);
+    
+    // If it's a duplicate key error, that's okay - they're already subscribed
+    if (error.code === 137) {
+      return true;
+    }
+    
     showError('Error subscribing: ' + error.message);
     return false;
   }

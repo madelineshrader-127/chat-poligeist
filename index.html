@@ -1,129 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The PoliGeist – Politics, Culture, and the Supernatural</title>
-<style>
-/* Reset and base styles */
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Georgia, 'Times New Roman', serif; line-height:1.8; color:#333; background:#f9f9f9; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The PoliGeist – Politics, Culture, and the Supernatural</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <script src="https://npmcdn.com/parse@3.4.4/dist/parse.min.js"></script>
+  <style>
+    /* Reset and base styles */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Georgia, 'Times New Roman', serif; line-height:1.8; color:#333; background:#f9f9f9; }
 
-/* Header */
-header { background:#555879; color:white; padding:2.5rem 0; text-align:center; border-bottom:4px solid #98A1BC; }
-h1 { font-size:3rem; font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
-.subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
+    /* Loading spinner */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .loading-overlay.active { display: flex; }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #98A1BC;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-/* Nav */
-nav { background:#555879; position:sticky; top:0; z-index:100; box-shadow:0 2px 5px rgba(0,0,0,0.2); }
-.nav-container { max-width:1000px; margin:0 auto; display:flex; justify-content:center; gap:0; }
-.nav-tab { flex:1; padding:1rem 2rem; background:transparent; border:none; cursor:pointer; font-size:1rem; font-weight:600; color:#ecf0f1; transition:all 0.3s; border-bottom:3px solid transparent; font-family:Georgia, serif; }
-.nav-tab:hover { background:#6a6d8c; color:white; }
-.nav-tab.active { background:#6a6d8c; border-bottom-color:#98A1BC; }
+    /* Header */
+    header {
+      background: #555879;
+      color: white;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      border-bottom: 4px solid #98A1BC;
+    }
+    h1 { font-size:clamp(2rem, 5vw, 3rem); font-weight:700; letter-spacing:2px; margin-bottom:0.5rem; }
+    .subtitle { font-size:1.1rem; font-style:italic; opacity:0.9; }
 
-/* Main container */
-.container { max-width:900px; margin:0 auto; padding:2rem 20px; }
+    /* Nav */
+    nav {
+      background: #555879;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .nav-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .nav-tab {
+      flex: 1;
+      min-width: 120px;
+      padding: 1rem 1.5rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ecf0f1;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+      font-family: Georgia, serif;
+    }
+    .nav-tab:hover, .nav-tab:focus {
+      background: #6a6d8c;
+      color: white;
+      outline: 2px solid #98A1BC;
+      outline-offset: -2px;
+    }
+    .nav-tab.active {
+      background: #6a6d8c;
+      border-bottom-color: #98A1BC;
+    }
 
-/* Tabs content */
-.tab-content { display:none; }
-.tab-content.active { display:block; }
+    /* Main container */
+    .container { max-width:900px; margin:0 auto; padding:2rem 20px; }
 
-/* Admin panel toggle */
-.admin-toggle { text-align:center; margin:2rem 0; }
-.toggle-btn { background:#95a5a6; color:white; border:none; padding:0.75rem 1.5rem; font-size:0.95rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; }
-.toggle-btn:hover { background:#7f8c8d; }
+    /* Tabs content */
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
 
-/* Admin panel form */
-.admin-panel { background:white; margin:2rem 0; padding:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
-.admin-panel h2 { font-size:1.8rem; margin-bottom:1.5rem; color:#2c3e50; }
-.form-group { margin-bottom:1.5rem; }
-label { display:block; font-weight:600; margin-bottom:0.5rem; color:#2c3e50; font-size:1rem; }
-input, textarea, select { width:100%; padding:0.75rem; border:1px solid #bdc3c7; border-radius:4px; font-size:1rem; font-family:Georgia, serif; transition:border-color 0.3s; }
-select { background:white; cursor:pointer; }
-input:focus, textarea:focus, select:focus { outline:none; border-color:#98A1BC; }
-textarea { min-height:200px; resize:vertical; }
+    /* Admin panel toggle */
+    .admin-toggle { text-align:center; margin:2rem 0; }
+    .toggle-btn { 
+      background:#95a5a6; 
+      color:white; 
+      border:none; 
+      padding:0.75rem 1.5rem; 
+      font-size:0.95rem; 
+      border-radius:4px; 
+      cursor:pointer; 
+      transition:background 0.3s; 
+      font-family:Georgia, serif; 
+    }
+    .toggle-btn:hover, .toggle-btn:focus { 
+      background:#7f8c8d; 
+      outline: 2px solid #555879;
+      outline-offset: 2px;
+    }
+    .logout-btn {
+      background: #e74c3c;
+      margin-left: 1rem;
+    }
+    .logout-btn:hover, .logout-btn:focus {
+      background: #c0392b;
+    }
 
-/* Buttons */
-button[type="submit"], .subscribe-btn { background:#98A1BC; color:white; border:none; padding:0.75rem 2rem; font-size:1rem; border-radius:4px; cursor:pointer; transition:background 0.3s; font-family:Georgia, serif; font-weight:600; }
-button[type="submit"]:hover, .subscribe-btn:hover { background:#7f879c; }
-.export-btn { background:#27ae60; margin-left:1rem; }
-.export-btn:hover { background:#229954; }
+    /* Admin panel form */
+    .admin-panel { 
+      background:white; 
+      margin:2rem 0; 
+      padding:2rem; 
+      border-radius:4px; 
+      box-shadow:0 2px 8px rgba(0,0,0,0.1); 
+      border-left:4px solid #98A1BC; 
+    }
+    .admin-panel h2 { font-size:1.8rem; margin-bottom:1.5rem; color:#2c3e50; }
+    .form-group { margin-bottom:1.5rem; }
+    label { display:block; font-weight:600; margin-bottom:0.5rem; color:#2c3e50; font-size:1rem; }
+    input, select { 
+      width:100%; 
+      padding:0.75rem; 
+      border:1px solid #bdc3c7; 
+      border-radius:4px; 
+      font-size:1rem; 
+      font-family:Georgia, serif; 
+      transition:border-color 0.3s; 
+    }
+    select { background:white; cursor:pointer; }
+    input:focus, select:focus { outline:none; border-color:#98A1BC; box-shadow: 0 0 0 3px rgba(152,161,188,0.2); }
 
-/* Posts */
-.post { background:white; padding:2.5rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); border-left:4px solid #98A1BC; }
-.post h2 { font-size:2rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.3; }
-.post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
-.post-content { color:#34495e; font-size:1.1rem; line-height:1.8; white-space:pre-wrap; }
-.delete-btn { background:#95a5a6; color:white; border:none; padding:0.5rem 1rem; font-size:0.9rem; border-radius:4px; cursor:pointer; margin-top:1rem; transition:background 0.3s; font-family:Georgia, serif; }
-.delete-btn:hover { background:#7f8c8d; }
+    /* Editor toolbar */
+    #toolbar { margin-bottom: 0.5rem; }
+    #toolbar button {
+      background:#98A1BC; 
+      color:white; 
+      border:none; 
+      padding:0.4rem 0.8rem; 
+      margin-right:0.3rem; 
+      margin-bottom: 0.3rem;
+      border-radius:4px; 
+      cursor:pointer; 
+      font-family:Georgia, serif; 
+      font-size:0.9rem;
+    }
+    #toolbar button:hover, #toolbar button:focus { 
+      background:#7f879c; 
+      outline: 2px solid #555879;
+      outline-offset: 1px;
+    }
 
-/* Empty states */
-.empty-state { text-align:center; padding:4rem 2rem; color:#95a5a6; background:white; border-radius:4px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-.empty-state h3 { font-size:1.8rem; margin-bottom:1rem; color:#7f8c8d; }
-.empty-state p { font-size:1.1rem; }
+    /* Editor */
+    #content {
+      min-height:200px;
+      max-height: 400px;
+      overflow-y: auto;
+      border:1px solid #bdc3c7;
+      border-radius:4px;
+      padding:0.75rem;
+      font-family:Georgia, serif;
+      background: white;
+    }
+    #content:focus {
+      outline: none;
+      border-color: #98A1BC;
+      box-shadow: 0 0 0 3px rgba(152,161,188,0.2);
+    }
 
-/* Featured post */
-.featured-post { background:white; padding:3rem; margin-bottom:2rem; border-radius:4px; box-shadow:0 4px 12px rgba(0,0,0,0.15); border-left:6px solid #98A1BC; }
-.featured-label { display:inline-block; background:#98A1BC; color:white; padding:0.4rem 1rem; font-size:0.85rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:1rem; border-radius:3px; }
-.featured-post h2 { font-size:2.5rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.2; }
-.featured-post .post-meta { color:#7f8c8d; font-size:1rem; margin-bottom:1.5rem; font-style:italic; }
-.featured-post .post-content { color:#34495e; font-size:1.15rem; line-height:1.9; margin-bottom:1.5rem; }
-.read-more { display:inline-block; color:#98A1BC; font-weight:600; text-decoration:none; font-size:1.1rem; transition:color 0.3s; }
-.read-more:hover { color:#7f879c; }
-.category-badge { display:inline-block; background:#98A1BC; color:white; padding:0.3rem 0.8rem; font-size:0.85rem; border-radius:3px; margin-left:0.5rem; text-transform:capitalize; }
+    /* Buttons */
+    button[type="submit"], .subscribe-btn { 
+      background:#98A1BC; 
+      color:white; 
+      border:none; 
+      padding:0.75rem 2rem; 
+      font-size:1rem; 
+      border-radius:4px; 
+      cursor:pointer; 
+      transition:background 0.3s; 
+      font-family:Georgia, serif; 
+      font-weight:600; 
+    }
+    button[type="submit"]:hover, .subscribe-btn:hover,
+    button[type="submit"]:focus, .subscribe-btn:focus { 
+      background:#7f879c; 
+      outline: 2px solid #555879;
+      outline-offset: 2px;
+    }
+    button[type="submit"]:disabled, .subscribe-btn:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+    }
+    .export-btn { background:#27ae60; margin-left:1rem; margin-top: 0.5rem; }
+    .export-btn:hover, .export-btn:focus { background:#229954; }
 
-/* Subscribe box */
-#subscribe-box { text-align:center; margin:3rem 0; }
-#subscribe-box input[type=email] { max-width:300px; margin-right:0.5rem; }
-.thank-you { color:#98A1BC; font-weight:600; margin-top:1rem; display:none; }
+    /* Posts */
+    .post { 
+      background:white; 
+      padding:2.5rem; 
+      margin-bottom:2rem; 
+      border-radius:4px; 
+      box-shadow:0 2px 8px rgba(0,0,0,0.1); 
+      border-left:4px solid #98A1BC; 
+      position: relative;
+    }
+    .post h2 { font-size:2rem; color:#2c3e50; margin-bottom:0.75rem; line-height:1.3; }
+    .post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
+    .post-content { color:#34495e; font-size:1.1rem; line-height:1.8; }
+    .post-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 1rem 0; }
 
-/* Comments */
-.comments-section { margin-top:1.5rem; border-top:1px solid #ccc; padding-top:1rem; }
-.comments-section form input, .comments-section form textarea { margin-bottom:0.5rem; }
-.comment { background:#f2f2f2; padding:0.5rem 0.75rem; border-radius:4px; margin-bottom:0.5rem; }
+    /* Delete button for posts */
+    .delete-post-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-family: Georgia, serif;
+      transition: background 0.3s;
+    }
+    .delete-post-btn:hover, .delete-post-btn:focus {
+      background: #c0392b;
+    }
 
-/* Footer */
-footer { text-align:center; margin:3rem 0; }
-footer a { margin:0 0.5rem; font-size:1.5rem; color:#555879; text-decoration:none; transition:color 0.3s; }
-footer a:hover { color:#98A1BC; }
+    /* Empty states */
+    .empty-state { 
+      text-align:center; 
+      padding:4rem 2rem; 
+      color:#95a5a6; 
+      background:white; 
+      border-radius:4px; 
+      box-shadow:0 2px 8px rgba(0,0,0,0.1); 
+    }
+    .empty-state h3 { font-size:1.8rem; margin-bottom:1rem; color:#7f8c8d; }
+    .empty-state p { font-size:1.1rem; }
 
-/* Modal */
-#fullPostModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; justify-content:center; align-items:center; }
-#fullPostModal > div { background:white; max-width:800px; width:90%; padding:2rem; border-radius:6px; position:relative; max-height:90%; overflow-y:auto; }
-#fullPostModal button { position:absolute; top:1rem; right:1rem; font-size:1.2rem; background:none; border:none; cursor:pointer; }
-</style>
+    /* Featured post */
+    .featured-post { 
+      background:white; 
+      padding:3rem; 
+      margin-bottom:2rem; 
+      border-radius:4px; 
+      box-shadow:0 4px 12px rgba(0,0,0,0.15); 
+      border-left:6px solid #98A1BC; 
+    }
+    .featured-label { 
+      display:inline-block; 
+      background:#98A1BC; 
+      color:white; 
+      padding:0.4rem 1rem; 
+      font-size:0.85rem; 
+      font-weight:600; 
+      text-transform:uppercase; 
+      letter-spacing:1px; 
+      margin-bottom:1rem; 
+      border-radius:3px; 
+    }
+    .read-more-btn {
+      background: #98A1BC;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: Georgia, serif;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      transition: background 0.3s;
+    }
+    .read-more-btn:hover, .read-more-btn:focus {
+      background: #7f879c;
+      outline: 2px solid #555879;
+      outline-offset: 2px;
+    }
 
-<!-- Font Awesome for icons -->
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    /* Subscribe box */
+    #subscribe-box { 
+      text-align:center; 
+      margin:3rem 0; 
+      padding: 2rem;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #subscribe-box h3 {
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+    #subscribe-box input[type=email] { 
+      max-width:300px; 
+      margin-right:0.5rem; 
+      margin-bottom: 0.5rem;
+    }
+    .thank-you { 
+      color:#98A1BC; 
+      font-weight:600; 
+      margin-top:1rem; 
+      display:none; 
+    }
 
+    /* Footer */
+    footer {
+      background:#555879;
+      color:white;
+      text-align:center;
+      padding:1.5rem 0;
+      margin-top:2rem;
+    }
+    footer a {
+      color:white;
+      text-decoration:none;
+      margin:0 1rem;
+      font-size:1.5rem;
+      transition: color 0.3s;
+    }
+    footer a:hover, footer a:focus {
+      color:#98A1BC;
+      outline: 2px solid #98A1BC;
+      outline-offset: 4px;
+      border-radius: 4px;
+    }
+
+    /* Error message */
+    .error-message {
+      background: #e74c3c;
+      color: white;
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      display: none;
+    }
+
+    /* Config notice */
+    .config-notice {
+      background: #f39c12;
+      color: white;
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin: 2rem 0;
+      text-align: center;
+    }
+    .config-notice strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-tab { padding: 0.75rem 1rem; font-size: 0.9rem; }
+      .post, .featured-post { padding: 1.5rem; }
+      h1 { font-size: 2rem; }
+      #subscribe-box input[type=email] { max-width: 100%; margin-bottom: 1rem; }
+      .export-btn { margin-left: 0; margin-top: 1rem; display: block; width: 100%; }
+      .logout-btn { margin-left: 0; margin-top: 0.5rem; display: block; width: 100%; }
+    }
+
+    /* Character counter */
+    .char-counter {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      text-align: right;
+      margin-top: 0.25rem;
+    }
+  </style>
 </head>
 <body>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+</div>
+
 <header>
-    <h1>The PoliGeist</h1>
-    <p class="subtitle">Politics, Culture, and the Supernatural</p>
-    <div id="jst-clock" style="margin-top:0.5rem; font-size:0.95rem; opacity:0.85;"></div>
+  <h1>The PoliGeist</h1>
+  <p class="subtitle">Politics, Culture, and the Supernatural</p>
+  <div id="jst-clock" style="margin-top:0.5rem; font-size:0.95rem; opacity:0.85;" aria-live="polite"></div>
 </header>
 
-<nav>
-    <div class="nav-container">
-        <button class="nav-tab active" onclick="switchTab('home')">Home</button>
-        <button class="nav-tab" onclick="switchTab('about')">About</button>
-        <button class="nav-tab" onclick="switchTab('politics')">Politics</button>
-        <button class="nav-tab" onclick="switchTab('japanese')">Japanese Supernatural Culture</button>
-    </div>
+<nav role="navigation" aria-label="Main navigation">
+  <div class="nav-container">
+    <button class="nav-tab active" onclick="switchTab('home', this)" aria-label="Home">Home</button>
+    <button class="nav-tab" onclick="switchTab('about', this)" aria-label="About">About</button>
+    <button class="nav-tab" onclick="switchTab('politics', this)" aria-label="Politics">Politics</button>
+    <button class="nav-tab" onclick="switchTab('japanese', this)" aria-label="Japanese Supernatural Culture">Japanese Supernatural Culture</button>
+  </div>
 </nav>
 
 <div class="container">
-  <div class="admin-toggle">
-    <button class="toggle-btn" onclick="toggleAdmin()">Toggle Admin Panel</button>
+  <div id="configNotice" class="config-notice" style="display:none;">
+    <strong>⚠️ Configuration Required</strong>
+    <p>Please update the Back4app credentials in the code to connect to your database.</p>
   </div>
 
-  <div class="admin-panel" id="adminPanel" style="display:none;">
+  <div class="error-message" id="errorMessage"></div>
+
+  <div class="admin-toggle">
+    <button class="toggle-btn" onclick="toggleAdmin()" aria-expanded="false" aria-controls="adminPanel">Admin Login</button>
+    <button class="logout-btn" id="logoutBtn" onclick="logout()" style="display:none;">Logout</button>
+  </div>
+
+  <div class="admin-panel" id="adminPanel" style="display:none;" role="region" aria-label="Admin panel">
     <h2>Add New Post</h2>
     <form id="postForm">
       <div class="form-group">
         <label for="category">Category</label>
-        <select id="category" required>
+        <select id="category" required aria-required="true">
           <option value="about">About</option>
           <option value="politics">Politics</option>
           <option value="japanese">Japanese Supernatural Culture</option>
@@ -131,264 +433,562 @@ footer a:hover { color:#98A1BC; }
       </div>
       <div class="form-group">
         <label for="title">Title</label>
-        <input type="text" id="title" required>
+        <input type="text" id="title" required aria-required="true" maxlength="200">
+        <div class="char-counter" id="titleCounter">0 / 200</div>
       </div>
       <div class="form-group">
-        <label>Content</label>
-        <div>
-          <button type="button" onclick="format('bold')"><b>B</b></button>
-          <button type="button" onclick="format('italic')"><i>I</i></button>
-          <button type="button" onclick="format('underline')"><u>U</u></button>
-          <button type="button" onclick="insertImage()">Image</button>
+        <label for="content">Content</label>
+        <div id="toolbar" role="toolbar" aria-label="Text formatting">
+          <button type="button" onclick="format('bold')" aria-label="Bold" title="Bold"><b>B</b></button>
+          <button type="button" onclick="format('italic')" aria-label="Italic" title="Italic"><i>I</i></button>
+          <button type="button" onclick="format('underline')" aria-label="Underline" title="Underline"><u>U</u></button>
+          <button type="button" onclick="format('insertUnorderedList')" aria-label="Bullet list" title="Bullet list">• List</button>
+          <button type="button" onclick="format('insertOrderedList')" aria-label="Numbered list" title="Numbered list">1. List</button>
+          <button type="button" onclick="insertImage()" aria-label="Insert image" title="Insert image">🖼️ Image</button>
         </div>
-        <div id="content" contenteditable="true" style="border:1px solid #bdc3c7; padding:0.75rem; border-radius:4px; min-height:200px;"></div>
+        <div id="content" contenteditable="true" role="textbox" aria-label="Post content" aria-multiline="true"></div>
       </div>
-      <button type="submit">Publish Post</button>
+      <button type="submit" id="publishBtn">Publish Post</button>
       <button type="button" class="export-btn" onclick="exportPosts()">Export Data</button>
     </form>
   </div>
 
-  <div id="homeTab" class="tab-content active">
+  <div id="homeTab" class="tab-content active" role="tabpanel" aria-label="Home">
     <div id="featuredPost">
       <div class="empty-state">
         <h3>Welcome to The PoliGeist</h3>
-        <p>No articles published yet. Toggle the admin panel to create your first post!</p>
+        <p>Loading articles...</p>
       </div>
     </div>
   </div>
 
-  <div id="aboutTab" class="tab-content">
-    <div id="postsAbout">
-      <div class="empty-state">
-        <h3>No posts yet</h3>
-        <p>Toggle the admin panel above to create your first post!</p>
-      </div>
-    </div>
+  <div id="aboutTab" class="tab-content" role="tabpanel" aria-label="About">
+    <div id="postsAbout" class="posts"></div>
   </div>
 
-  <div id="politicsTab" class="tab-content">
-    <div id="postsPolitics">
-      <div class="empty-state">
-        <h3>No posts yet</h3>
-        <p>Toggle the admin panel above to create your first post!</p>
-      </div>
-    </div>
+  <div id="politicsTab" class="tab-content" role="tabpanel" aria-label="Politics">
+    <div id="postsPolitics" class="posts"></div>
   </div>
 
-  <div id="japaneseTab" class="tab-content">
-    <div id="postsJapanese">
-      <div class="empty-state">
-        <h3>No posts yet</h3>
-        <p>Toggle the admin panel above to create your first post!</p>
-      </div>
-    </div>
+  <div id="japaneseTab" class="tab-content" role="tabpanel" aria-label="Japanese Supernatural Culture">
+    <div id="postsJapanese" class="posts"></div>
   </div>
 
+  <!-- Subscribe box -->
   <div id="subscribe-box">
-    <input type="email" id="subscriber-email" placeholder="Enter your email" required>
-    <button class="subscribe-btn" onclick="subscribe()">Subscribe</button>
-    <div class="thank-you" id="thank-you-msg">Thank you for subscribing!</div>
+    <h3>Subscribe to The PoliGeist</h3>
+    <p>Get notified about new posts</p>
+    <form onsubmit="subscribe(event)">
+      <input type="email" id="subscriber-email" placeholder="Enter your email" required aria-required="true" aria-label="Email address">
+      <button type="submit" class="subscribe-btn">Subscribe</button>
+    </form>
+    <div class="thank-you" id="thank-you-msg" role="status" aria-live="polite">Thank you for subscribing!</div>
   </div>
 </div>
 
-<footer>
-  <a href="https://www.linkedin.com/in/madeline-paul-shrader569514369?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank"><i class="fab fa-linkedin"></i></a>
-  <a href="mailto:madeline.shrader@gmail.com"><i class="fas fa-envelope"></i></a>
+<footer role="contentinfo">
+  <a href="https://www.linkedin.com/in/madeline-paul-shrader569514369?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile"><i class="fab fa-linkedin"></i></a>
+  <a href="mailto:madeline.shrader@gmail.com" aria-label="Email contact"><i class="fas fa-envelope"></i></a>
 </footer>
 
-<!-- Full Post Modal -->
-<div id="fullPostModal">
-  <div>
-    <button onclick="closeModal()">&times;</button>
-    <h2 id="modalTitle"></h2>
-    <div class="post-meta" id="modalDate"></div>
-    <div id="modalContent" style="margin-top:1rem;"></div>
-  </div>
-</div>
-
 <script>
-let posts = JSON.parse(localStorage.getItem('poligeistPosts')) || [];
-let subscribers = JSON.parse(localStorage.getItem('poligeistSubscribers')) || [];
-let currentTab = 'home';
+// ============================================
+// BACK4APP CONFIGURATION
+// ============================================
+// Replace these with your Back4app credentials from:
+// App Settings → Security & Keys
+const BACK4APP_CONFIG = {
+  applicationId: 'YOUR_APPLICATION_ID_HERE',
+  javascriptKey: 'YOUR_JAVASCRIPT_KEY_HERE',
+  serverURL: 'https://parseapi.back4app.com'
+};
 
-/* JST Clock */
+// Initialize Parse
+Parse.initialize(BACK4APP_CONFIG.applicationId, BACK4APP_CONFIG.javascriptKey);
+Parse.serverURL = BACK4APP_CONFIG.serverURL;
+
+// Check if config is set
+const isConfigured = BACK4APP_CONFIG.applicationId !== 'YOUR_APPLICATION_ID_HERE';
+
+// ============================================
+// STATE MANAGEMENT
+// ============================================
+const STATE = {
+  posts: [],
+  subscribers: [],
+  currentTab: 'home',
+  currentUser: null,
+  adminPassword: 'poligeist2024' // Change this to your desired password
+};
+
+// ============================================
+// LOADING SPINNER
+// ============================================
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('active');
+}
+
+// ============================================
+// ERROR HANDLING
+// ============================================
+function showError(message) {
+  const errorEl = document.getElementById('errorMessage');
+  errorEl.textContent = message;
+  errorEl.style.display = 'block';
+  setTimeout(() => {
+    errorEl.style.display = 'none';
+  }, 5000);
+}
+
+// ============================================
+// JST CLOCK
+// ============================================
 function updateClock() {
-  const now = new Date(new Date().toLocaleString("en-US", {timeZone:"Asia/Tokyo"}));
-  const options = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' };
-  document.getElementById('jst-clock').textContent = now.toLocaleDateString('en-US', options);
+  try {
+    const now = new Date(new Date().toLocaleString("en-US", {timeZone:"Asia/Tokyo"}));
+    const options = { 
+      weekday:'long', 
+      year:'numeric', 
+      month:'long', 
+      day:'numeric', 
+      hour:'2-digit', 
+      minute:'2-digit', 
+      second:'2-digit',
+      timeZone: 'Asia/Tokyo'
+    };
+    const clockEl = document.getElementById('jst-clock');
+    if (clockEl) {
+      clockEl.textContent = now.toLocaleDateString('en-US', options) + ' JST';
+    }
+  } catch (e) {
+    console.error('Error updating clock:', e);
+  }
 }
-setInterval(updateClock, 1000);
-updateClock();
 
-/* Tabs */
-function switchTab(tab){
-  currentTab=tab;
-  document.querySelectorAll('.nav-tab').forEach(btn=>btn.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(content=>content.classList.remove('active'));
-  document.getElementById(tab+'Tab').classList.add('active');
+// ============================================
+// TABS
+// ============================================
+function switchTab(tab, button) {
+  STATE.currentTab = tab;
+  
+  document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+  if (button) button.classList.add('active');
+  
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  const tabContent = document.getElementById(tab + 'Tab');
+  if (tabContent) tabContent.classList.add('active');
 }
 
-/* Save & Render Posts */
-function savePosts(){
-  localStorage.setItem('poligeistPosts', JSON.stringify(posts));
-  renderPosts();
+// ============================================
+// HTML UTILITIES
+// ============================================
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
-function renderPosts(){
-  const categories = ["about","politics","japanese"];
-  const categoryNames = {
-    about: "About This Page",
-    politics: "Politics",
-    japanese: "Japanese Supernatural Culture"
-  };
+// ============================================
+// BACK4APP FUNCTIONS
+// ============================================
 
-  // Featured post (raw category shown)
-  if(posts.length > 0){
-    const latest = posts[0];
-    document.getElementById('featured').innerHTML = `
-      <div class="featured-post">
-        <span class="featured-label">Latest Article</span>
-        <h2>${latest.title}</h2>
-        <span class="category-badge">${latest.category}</span>
-        <div class="post-meta">${latest.date}</div>
-        <div class="post-content">${latest.content.substring(0,200)}...</div>
-        <a href="#" class="read-more" onclick="openFullPost(0); return false;">Read full article →</a>
-      </div>
-    `;
+// Load all posts from Back4app
+async function loadPosts() {
+  if (!isConfigured) {
+    document.getElementById('configNotice').style.display = 'block';
+    return;
   }
 
-  // Posts by category (cleaner layout with mapped display name)
-  categories.forEach(cat=>{
-    const container = document.getElementById(cat+"-posts");
-    container.innerHTML = "";
-    posts.filter(p=>p.category===cat).forEach((post,idx)=>{
-      container.innerHTML += `
-        <div class="post">
-          <h2>${post.title}</h2>
-          <span class="category-badge">${categoryNames[post.category]}</span>
-          <div class="post-meta">${post.date}</div>
-          <div class="post-content">${post.content.substring(0,200)}...</div>
-          <a href="#" class="read-more" onclick="openFullPost(${idx}); return false;">Read full article →</a>
-          <div class="comments-section" id="comments-${idx}">
-            <h3>Comments</h3>
-            <div id="comments-list-${idx}"></div>
-            <form onsubmit="addComment(event, ${idx})">
-              <input type="text" placeholder="Your name" required />
-              <textarea placeholder="Your comment" required></textarea>
-              <button type="submit">Post Comment</button>
-            </form>
-          </div>
-        </div>
-      `;
-      renderComments(idx);
-    });
-  });
+  showLoading();
+  try {
+    const Post = Parse.Object.extend('BlogPost');
+    const query = new Parse.Query(Post);
+    query.descending('createdAt');
+    query.limit(1000);
+    
+    const results = await query.find();
+    STATE.posts = results.map(post => ({
+      id: post.id,
+      category: post.get('category'),
+      title: post.get('title'),
+      content: post.get('content'),
+      date: post.get('date'),
+      timestamp: post.createdAt.getTime()
+    }));
+    
+    renderPosts();
+  } catch (error) {
+    console.error('Error loading posts:', error);
+    showError('Error loading posts: ' + error.message);
+  } finally {
+    hideLoading();
+  }
 }
 
+// Save a new post to Back4app
+async function savePost(postData) {
+  if (!isConfigured) {
+    alert('Please configure Back4app credentials first.');
+    return false;
+  }
 
-  Object.keys(categories).forEach(category=>{
-    const container=document.getElementById('posts'+categories[category]);
-    const catPosts=posts.filter(p=>p.category===category);
-    if(catPosts.length===0){
-      container.innerHTML=`<div class="empty-state"><h3>No posts yet</h3><p>Toggle the admin panel above to create your first post!</p></div>`;
+  showLoading();
+  try {
+    const Post = Parse.Object.extend('BlogPost');
+    const post = new Post();
+    
+    post.set('category', postData.category);
+    post.set('title', postData.title);
+    post.set('content', postData.content);
+    post.set('date', postData.date);
+    
+    await post.save();
+    await loadPosts();
+    return true;
+  } catch (error) {
+    console.error('Error saving post:', error);
+    showError('Error saving post: ' + error.message);
+    return false;
+  } finally {
+    hideLoading();
+  }
+}
+
+// Delete a post from Back4app
+async function deletePost(postId) {
+  if (!confirm('Are you sure you want to delete this post?')) {
+    return;
+  }
+
+  showLoading();
+  try {
+    const Post = Parse.Object.extend('BlogPost');
+    const query = new Parse.Query(Post);
+    const post = await query.get(postId);
+    await post.destroy();
+    await loadPosts();
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    showError('Error deleting post: ' + error.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+// Save subscriber to Back4app
+async function saveSubscriber(email) {
+  if (!isConfigured) {
+    return false;
+  }
+
+  try {
+    const Subscriber = Parse.Object.extend('Subscriber');
+    const query = new Parse.Query(Subscriber);
+    query.equalTo('email', email);
+    const existing = await query.first();
+    
+    if (existing) {
+      return true; // Already subscribed
+    }
+    
+    const subscriber = new Subscriber();
+    subscriber.set('email', email);
+    await subscriber.save();
+    return true;
+  } catch (error) {
+    console.error('Error saving subscriber:', error);
+    showError('Error subscribing: ' + error.message);
+    return false;
+  }
+}
+
+// ============================================
+// RENDER FUNCTIONS
+// ============================================
+function renderPosts() {
+  renderFeaturedPost();
+  renderCategoryPosts();
+}
+
+function renderFeaturedPost() {
+  const featuredContainer = document.getElementById('featuredPost');
+  if (!featuredContainer) return;
+  
+  if (STATE.posts.length === 0) {
+    featuredContainer.innerHTML = `
+      <div class="empty-state">
+        <h3>Welcome to The PoliGeist</h3>
+        <p>No articles published yet. ${STATE.currentUser ? 'Create your first post using the admin panel above!' : 'Check back soon for new content!'}</p>
+      </div>`;
+  } else {
+    const latest = STATE.posts[0];
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = latest.content;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    const preview = textContent.substring(0, 400) + (textContent.length > 400 ? '...' : '');
+    
+    featuredContainer.innerHTML = `
+      <article class="featured-post">
+        <span class="featured-label">Latest Article</span>
+        <h2>${escapeHTML(latest.title)}</h2>
+        <div class="post-meta">${escapeHTML(latest.date)}</div>
+        <div class="post-content">${escapeHTML(preview)}</div>
+        <button class="read-more-btn" onclick="goToFullArticle('${latest.category}')">Read More →</button>
+      </article>`;
+  }
+}
+
+function renderCategoryPosts() {
+  const containers = {
+    about: 'postsAbout',
+    politics: 'postsPolitics',
+    japanese: 'postsJapanese'
+  };
+  
+  Object.keys(containers).forEach(category => {
+    const container = document.getElementById(containers[category]);
+    if (!container) return;
+    
+    const catPosts = STATE.posts.filter(p => p.category === category);
+    
+    if (catPosts.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <h3>No posts yet</h3>
+          <p>${STATE.currentUser ? 'Create your first post in this category!' : 'Check back soon for new content!'}</p>
+        </div>`;
     } else {
-      container.innerHTML=catPosts.map((post, idx)=>{
-        return `<article class="post"><h2>${post.title}</h2><div class="post-meta">${post.date}</div><div class="post-content">${post.content}</div><a href="#" class="read-more" onclick="openFullPost(${idx}); return false;">Read full article →</a><div class="comments-section"><h4>Comments</h4><div class="comments-list" id="comments-post-${idx}"></div><form onsubmit="addComment(event,${idx})"><input type="text" id="commentName-${idx}" placeholder="Your name" required><textarea id="commentText-${idx}" placeholder="Your comment" required></textarea><button type="submit">Add Comment</button></form></div><button class="delete-btn" onclick="deletePost(${idx})">Delete</button></article>`;
-      }).join('');
-      catPosts.forEach((_, idx)=>renderComments(idx));
+      container.innerHTML = catPosts.map(post => `
+        <article class="post">
+          ${STATE.currentUser ? `<button class="delete-post-btn" onclick="deletePost('${post.id}')">Delete</button>` : ''}
+          <h2>${escapeHTML(post.title)}</h2>
+          <div class="post-meta">${escapeHTML(post.date)}</div>
+          <div class="post-content">${post.content}</div>
+        </article>`).join('');
     }
   });
 }
 
-/* Post Form */
-document.getElementById('postForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  const category=document.getElementById('category').value;
-  const title=document.getElementById('title').value;
-  const content=document.getElementById('content').innerHTML;
-  const post={category,title,content,date:new Date().toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),timestamp:Date.now(),comments:[]};
-  posts.unshift(post);
-  savePosts();
-  document.getElementById('category').value='about';
-  document.getElementById('title').value='';
-  document.getElementById('content').innerHTML='';
-  alert('Post published successfully!');
-});
-
-/* Delete Post */
-function deletePost(index){if(confirm('Are you sure you want to delete this post?')){posts.splice(index,1);savePosts();}}
-
-/* Admin Panel */
-function toggleAdmin(){const panel=document.getElementById('adminPanel');panel.style.display=panel.style.display==='none'?'block':'none';}
-
-/* Export Posts */
-function exportPosts(){const dataStr=JSON.stringify(posts,null,2);const blob=new Blob([dataStr],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='poligeist-blog-posts.json';link.click();URL.revokeObjectURL(url);}
-
-/* Switch to category tab */
-function switchToCategory(category){
-  const tabMap={'about':'about','politics':'politics','japanese':'japanese'};
-  const tab=tabMap[category];
-  document.querySelectorAll('.nav-tab').forEach(btn=>btn.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(btn=>{if(btn.textContent.toLowerCase().includes(category)||(category==='japanese'&&btn.textContent.includes('Japanese'))){btn.classList.add('active');}});
-  document.querySelectorAll('.tab-content').forEach(content=>content.classList.remove('active'));
-  document.getElementById(tab+'Tab').classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+// Navigate to full article in appropriate tab
+function goToFullArticle(category) {
+  const tabButton = document.querySelector(`.nav-tab[onclick*="${category}"]`);
+  if (tabButton) {
+    switchTab(category, tabButton);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
-/* Comments */
-function addComment(e,postIndex){
-  e.preventDefault();
-  const nameInput=document.getElementById(`commentName-${postIndex}`);
-  const textInput=document.getElementById(`commentText-${postIndex}`);
-  const name=nameInput.value.trim();
-  const text=textInput.value.trim();
-  if(!name||!text) return;
-  if(!posts[postIndex].comments) posts[postIndex].comments=[];
-  posts[postIndex].comments.push({name,text,date:new Date().toLocaleString('en-US',{timeZone:'Asia/Tokyo'})});
-  savePosts();
-  nameInput.value=''; textInput.value='';
-  alert('Comment added!');
-}
-function renderComments(postIndex){
-  const container=document.getElementById(`comments-post-${postIndex}`);
-  container.innerHTML='';
-  (posts[postIndex].comments||[]).forEach(comment=>{
-    const div=document.createElement('div');
-    div.className='comment';
-    div.innerHTML=`<strong>${comment.name}</strong> (${comment.date}):<br>${comment.text}`;
-    container.appendChild(div);
+// ============================================
+// POST FORM
+// ============================================
+function initializeForm() {
+  const form = document.getElementById('postForm');
+  if (!form) return;
+  
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const category = document.getElementById('category').value;
+    const title = document.getElementById('title').value.trim();
+    const contentEl = document.getElementById('content');
+    const content = contentEl.innerHTML.trim();
+    
+    if (!title || !content) {
+      alert('Please fill in both title and content.');
+      return;
+    }
+    
+    const postData = {
+      category,
+      title,
+      content,
+      date: new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    };
+    
+    const publishBtn = document.getElementById('publishBtn');
+    publishBtn.disabled = true;
+    publishBtn.textContent = 'Publishing...';
+    
+    const success = await savePost(postData);
+    
+    if (success) {
+      document.getElementById('category').value = 'about';
+      document.getElementById('title').value = '';
+      contentEl.innerHTML = '';
+      updateTitleCounter();
+      alert('Post published successfully!');
+    }
+    
+    publishBtn.disabled = false;
+    publishBtn.textContent = 'Publish Post';
   });
+  
+  const titleInput = document.getElementById('title');
+  if (titleInput) {
+    titleInput.addEventListener('input', updateTitleCounter);
+  }
 }
 
-/* Modal functions */
-function openFullPost(postIndex){
-  const post=posts[postIndex];
-  const categoryNames={'about':'About This Page','politics':'Politics','japanese':'Japanese Supernatural Culture'};
-  document.getElementById('modalTitle').innerHTML=post.title+`<span class="category-badge">${categoryNames[post.category]}</span>`;
-  document.getElementById('modalDate').textContent=post.date;
-  document.getElementById('modalContent').innerHTML=post.content;
-  document.getElementById('fullPostModal').style.display='flex';
-}
-function closeModal(){document.getElementById('fullPostModal').style.display='none';}
-
-/* Subscribe */
-function subscribe(){
-  const email=document.getElementById('subscriber-email').value.trim();
-  if(!email) return;
-  if(!subscribers.includes(email)) subscribers.push(email);
-  localStorage.setItem('poligeistSubscribers', JSON.stringify(subscribers));
-  document.getElementById('thank-you-msg').style.display='block';
-  document.getElementById('subscriber-email').value='';
-  setTimeout(()=>{document.getElementById('thank-you-msg').style.display='none';},3000);
+function updateTitleCounter() {
+  const titleInput = document.getElementById('title');
+  const counter = document.getElementById('titleCounter');
+  if (titleInput && counter) {
+    const length = titleInput.value.length;
+    counter.textContent = `${length} / 200`;
+  }
 }
 
-/* Rich text formatting */
-function format(cmd){document.execCommand(cmd,false,null);}
-function insertImage(){const url=prompt('Enter image URL'); if(url) document.execCommand('insertImage', false, url);}
+// ============================================
+// ADMIN AUTHENTICATION
+// ============================================
+async function toggleAdmin() {
+  const panel = document.getElementById('adminPanel');
+  const button = document.querySelector('.toggle-btn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  if (!panel || !button) return;
+  
+  const isHidden = panel.style.display === 'none';
+  
+  if (isHidden) {
+    if (!STATE.currentUser) {
+      const password = prompt('Enter admin password:');
+      if (password === STATE.adminPassword) {
+        STATE.currentUser = { authenticated: true };
+        panel.style.display = 'block';
+        button.setAttribute('aria-expanded', 'true');
+        button.textContent = 'Hide Admin Panel';
+        logoutBtn.style.display = 'inline-block';
+        renderPosts(); // Re-render to show delete buttons
+      } else if (password !== null) {
+        alert('Incorrect password. Access denied.');
+      }
+    } else {
+      panel.style.display = 'block';
+      button.setAttribute('aria-expanded', 'true');
+      button.textContent = 'Hide Admin Panel';
+    }
+  } else {
+    panel.style.display = 'none';
+    button.setAttribute('aria-expanded', 'false');
+    button.textContent = 'Admin Login';
+  }
+}
 
-/* Initial render */
-renderPosts();
+function logout() {
+  STATE.currentUser = null;
+  const panel = document.getElementById('adminPanel');
+  const button = document.querySelector('.toggle-btn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  
+  panel.style.display = 'none';
+  button.setAttribute('aria-expanded', 'false');
+  button.textContent = 'Admin Login';
+  logoutBtn.style.display = 'none';
+  
+  renderPosts(); // Re-render to hide delete buttons
+  alert('Logged out successfully.');
+}
+
+// ============================================
+// EXPORT POSTS
+// ============================================
+function exportPosts() {
+  try {
+    const dataStr = JSON.stringify(STATE.posts, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `poligeist-posts-${Date.now()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error('Error exporting posts:', e);
+    alert('Error exporting posts.');
+  }
+}
+
+// ============================================
+// TOOLBAR FUNCTIONS
+// ============================================
+function format(command) {
+  try {
+    document.execCommand(command, false, null);
+    document.getElementById('content').focus();
+  } catch (e) {
+    console.error('Error formatting text:', e);
+  }
+}
+
+function insertImage() {
+  const url = prompt("Enter image URL (must be hosted online):");
+  if (url && url.trim()) {
+    try {
+      new URL(url);
+      document.execCommand('insertImage', false, url.trim());
+      document.getElementById('content').focus();
+    } catch (e) {
+      alert('Please enter a valid URL.');
+    }
+  }
+}
+
+// ============================================
+// SUBSCRIPTION
+// ============================================
+async function subscribe(event) {
+  if (event) event.preventDefault();
+  
+  const emailInput = document.getElementById('subscriber-email');
+  const email = emailInput.value.trim();
+  
+  if (!email) return;
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  
+  const subscribeBtn = event.target.querySelector('.subscribe-btn');
+  subscribeBtn.disabled = true;
+  subscribeBtn.textContent = 'Subscribing...';
+  
+  const success = await saveSubscriber(email);
+  
+  if (success) {
+    const thankYouMsg = document.getElementById('thank-you-msg');
+    if (thankYouMsg) {
+      thankYouMsg.style.display = 'block';
+      setTimeout(() => {
+        thankYouMsg.style.display = 'none';
+      }, 5000);
+    }
+    emailInput.value = '';
+  }
+  
+  subscribeBtn.disabled = false;
+  subscribeBtn.textContent = 'Subscribe';
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  initializeForm();
+  loadPosts();
+  updateClock();
+  setInterval(updateClock, 1000);
+});
 </script>
 </body>
 </html>

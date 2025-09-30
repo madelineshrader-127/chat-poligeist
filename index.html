@@ -352,6 +352,14 @@
       margin: 1rem 0;
       display: none;
     }
+    .success-message {
+      background: #27ae60;
+      color: white;
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      display: none;
+    }
 
     /* Config notice */
     .config-notice {
@@ -366,6 +374,25 @@
       display: block;
       margin-bottom: 0.5rem;
       font-size: 1.2rem;
+    }
+    .setup-notice {
+      background: #3498db;
+      color: white;
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin: 2rem 0;
+    }
+    .setup-notice strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+    .setup-notice ol {
+      text-align: left;
+      margin: 1rem 0 1rem 2rem;
+    }
+    .setup-notice li {
+      margin-bottom: 0.5rem;
     }
 
     /* Responsive */
@@ -413,7 +440,27 @@
     <p>Please update the Back4app credentials in the code to connect to your database.</p>
   </div>
 
+  <div id="setupNotice" class="setup-notice" style="display:none;">
+    <strong>🔧 First Time Setup Required</strong>
+    <p>Before you can use the admin panel, you need to create an admin user account:</p>
+    <ol>
+      <li>Go to your Back4app Dashboard → <strong>Database</strong></li>
+      <li>Click on the <strong>_User</strong> class (it's auto-created by Back4app)</li>
+      <li>Click <strong>+ Row</strong> to add a new user</li>
+      <li>Fill in:
+        <ul>
+          <li><strong>username:</strong> admin (or any username you want)</li>
+          <li><strong>password:</strong> your desired password (e.g., poligeist2024)</li>
+        </ul>
+      </li>
+      <li>Click <strong>Create</strong></li>
+      <li>Refresh this page and click "Admin Login"</li>
+    </ol>
+    <p><strong>Note:</strong> Back4app will automatically hash the password for security.</p>
+  </div>
+
   <div class="error-message" id="errorMessage"></div>
+  <div class="success-message" id="successMessage"></div>
 
   <div class="admin-toggle">
     <button class="toggle-btn" onclick="toggleAdmin()" aria-expanded="false" aria-controls="adminPanel">Admin Login</button>
@@ -517,8 +564,7 @@ const STATE = {
   posts: [],
   subscribers: [],
   currentTab: 'home',
-  currentUser: null,
-  adminPassword: 'writerslock127' // TODO: Change this to your desired password
+  currentUser: null
 };
 
 // ============================================
@@ -533,7 +579,7 @@ function hideLoading() {
 }
 
 // ============================================
-// ERROR HANDLING
+// MESSAGE HANDLING
 // ============================================
 function showError(message) {
   const errorEl = document.getElementById('errorMessage');
@@ -542,6 +588,15 @@ function showError(message) {
   setTimeout(() => {
     errorEl.style.display = 'none';
   }, 5000);
+}
+
+function showSuccess(message) {
+  const successEl = document.getElementById('successMessage');
+  successEl.textContent = message;
+  successEl.style.display = 'block';
+  setTimeout(() => {
+    successEl.style.display = 'none';
+  }, 3000);
 }
 
 // ============================================
@@ -593,6 +648,33 @@ function escapeHTML(str) {
 }
 
 // ============================================
+// BACK4APP AUTHENTICATION
+// ============================================
+async function loginUser(username, password) {
+  try {
+    const user = await Parse.User.logIn(username, password);
+    STATE.currentUser = user;
+    return { success: true, user };
+  } catch (error) {
+    console.error('Login error:', error);
+    
+    // Check if it's a "user not found" error
+    if (error.code === 101) {
+      // Show setup instructions
+      document.getElementById('setupNotice').style.display = 'block';
+      return { success: false, error: 'No admin user found. Please create one in Back4app first (see instructions above).' };
+    }
+    
+    return { success: false, error: error.message };
+  }
+}
+
+function logoutUser() {
+  Parse.User.logOut();
+  STATE.currentUser = null;
+}
+
+// ============================================
 // BACK4APP FUNCTIONS
 // ============================================
 
@@ -629,10 +711,15 @@ async function loadPosts() {
   }
 }
 
-// Save a new post to Back4app
+// Save a new post to Back4app (requires authentication)
 async function savePost(postData) {
   if (!isConfigured) {
     alert('Please configure Back4app credentials first.');
+    return false;
+  }
+
+  if (!STATE.currentUser) {
+    alert('You must be logged in to create posts.');
     return false;
   }
 
@@ -641,10 +728,16 @@ async function savePost(postData) {
     const Post = Parse.Object.extend('BlogPost');
     const post = new Post();
     
+    // Set ACL so only the current user can edit/delete
+    const acl = new Parse.ACL(STATE.currentUser);
+    acl.setPublicReadAccess(true);
+    post.setACL(acl);
+    
     post.set('category', postData.category);
     post.set('title', postData.title);
     post.set('content', postData.content);
     post.set('date', postData.date);
+    post.set('author', STATE.currentUser);
     
     await post.save();
     await loadPosts();
@@ -658,9 +751,14 @@ async function savePost(postData) {
   }
 }
 
-// Delete a post from Back4app
+// Delete a post from Back4app (requires authentication)
 async function deletePost(postId) {
   if (!confirm('Are you sure you want to delete this post?')) {
+    return;
+  }
+
+  if (!STATE.currentUser) {
+    alert('You must be logged in to delete posts.');
     return;
   }
 
@@ -671,6 +769,7 @@ async function deletePost(postId) {
     const post = await query.get(postId);
     await post.destroy();
     await loadPosts();
+    showSuccess('Post deleted successfully!');
   } catch (error) {
     console.error('Error deleting post:', error);
     showError('Error deleting post: ' + error.message);
@@ -697,6 +796,13 @@ async function saveSubscriber(email) {
     
     const subscriber = new Subscriber();
     subscriber.set('email', email);
+    
+    // Set public write access for subscribers
+    const acl = new Parse.ACL();
+    acl.setPublicReadAccess(false);
+    acl.setPublicWriteAccess(true);
+    subscriber.setACL(acl);
+    
     await subscriber.save();
     return true;
   } catch (error) {
@@ -824,7 +930,7 @@ function initializeForm() {
       document.getElementById('title').value = '';
       contentEl.innerHTML = '';
       updateTitleCounter();
-      alert('Post published successfully!');
+      showSuccess('Post published successfully!');
     }
     
     publishBtn.disabled = false;
@@ -860,16 +966,26 @@ async function toggleAdmin() {
   
   if (isHidden) {
     if (!STATE.currentUser) {
+      // Prompt for username and password
+      const username = prompt('Enter admin username:');
+      if (!username) return;
+      
       const password = prompt('Enter admin password:');
-      if (password === STATE.adminPassword) {
-        STATE.currentUser = { authenticated: true };
+      if (!password) return;
+      
+      showLoading();
+      const result = await loginUser(username, password);
+      hideLoading();
+      
+      if (result.success) {
         panel.style.display = 'block';
         button.setAttribute('aria-expanded', 'true');
         button.textContent = 'Hide Admin Panel';
         logoutBtn.style.display = 'inline-block';
         renderPosts(); // Re-render to show delete buttons
-      } else if (password !== null) {
-        alert('Incorrect password. Access denied.');
+        showSuccess('Logged in successfully!');
+      } else {
+        showError(result.error);
       }
     } else {
       panel.style.display = 'block';
@@ -884,7 +1000,7 @@ async function toggleAdmin() {
 }
 
 function logout() {
-  STATE.currentUser = null;
+  logoutUser();
   const panel = document.getElementById('adminPanel');
   const button = document.querySelector('.toggle-btn');
   const logoutBtn = document.getElementById('logoutBtn');
@@ -895,7 +1011,7 @@ function logout() {
   logoutBtn.style.display = 'none';
   
   renderPosts(); // Re-render to hide delete buttons
-  alert('Logged out successfully.');
+  showSuccess('Logged out successfully!');
 }
 
 // ============================================

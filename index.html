@@ -1129,28 +1129,54 @@ function setupPasteHandler() {
   if (!contentEl) return;
   
   contentEl.addEventListener('paste', function(e) {
-    // Small delay to let the paste complete
-    setTimeout(() => {
-      const images = contentEl.querySelectorAll('img');
-      images.forEach(img => {
-        // Remove any inline styles that might interfere
-        img.removeAttribute('style');
-        // Add wrap-left class if it doesn't have any wrap class
-        if (!img.classList.contains('wrap-left') && 
-            !img.classList.contains('wrap-right') && 
-            !img.classList.contains('center')) {
-          img.classList.add('wrap-left');
-        }
-      });
-    }, 100);
+    e.preventDefault();
+    
+    // Get pasted content
+    const clipboardData = e.clipboardData || window.clipboardData;
+    const pastedHTML = clipboardData.getData('text/html') || clipboardData.getData('text/plain');
+    
+    // Create a temporary container to parse the pasted content
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = pastedHTML;
+    
+    // Remove any table structures (Google Docs wrapping)
+    const tables = tempDiv.querySelectorAll('table');
+    tables.forEach(table => {
+      const content = table.textContent;
+      const p = document.createElement('p');
+      p.textContent = content;
+      table.replaceWith(p);
+    });
+    
+    // Find and process all images
+    const images = tempDiv.querySelectorAll('img');
+    images.forEach(img => {
+      img.removeAttribute('style');
+      img.removeAttribute('width');
+      img.removeAttribute('height');
+      img.classList.add('wrap-left');
+    });
+    
+    // Remove clear styles that prevent wrapping
+    const allElements = tempDiv.querySelectorAll('*');
+    allElements.forEach(el => {
+      if (el.style.clear) {
+        el.style.clear = 'none';
+      }
+    });
+    
+    // Insert the cleaned HTML
+    document.execCommand('insertHTML', false, tempDiv.innerHTML);
   });
   
-  // Also check for dynamically added images
+  // Also monitor for any images added after paste
   const observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       mutation.addedNodes.forEach(function(node) {
         if (node.nodeName === 'IMG') {
           node.removeAttribute('style');
+          node.removeAttribute('width');
+          node.removeAttribute('height');
           if (!node.classList.contains('wrap-left') && 
               !node.classList.contains('wrap-right') && 
               !node.classList.contains('center')) {
@@ -1161,6 +1187,8 @@ function setupPasteHandler() {
           const imgs = node.querySelectorAll('img');
           imgs.forEach(img => {
             img.removeAttribute('style');
+            img.removeAttribute('width');
+            img.removeAttribute('height');
             if (!img.classList.contains('wrap-left') && 
                 !img.classList.contains('wrap-right') && 
                 !img.classList.contains('center')) {

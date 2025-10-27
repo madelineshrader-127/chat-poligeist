@@ -224,11 +224,12 @@
     .post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
     .post-content { color:#34495e; font-size:1.1rem; line-height:1.8; overflow: auto; }
     .post-content img { max-width: 100%; height: auto; border-radius: 4px; }
-    .post-content table { max-width: 100%; }
+    .post-content table { max-width: 100%; border: none; width: 100%; }
+    .post-content td { border: none; padding: 0.5rem; vertical-align: top; }
     .post-content p, .post-content div { overflow: visible; }
     #content img { max-width: 100%; height: auto; border-radius: 4px; }
-    #content table { max-width: 100%; border-collapse: collapse; }
-    #content td { vertical-align: top; }
+    #content table { max-width: 100%; border-collapse: collapse; border: none; width: 100%; }
+    #content td { vertical-align: top; border: none; padding: 0.5rem; }
 
     /* Delete button for posts */
     .delete-post-btn {
@@ -1137,15 +1138,34 @@ function setupPasteHandler() {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = pastedHTML;
       
-      // Only make images responsive (don't change layout)
+      // Fix table widths and styling
+      const tables = tempDiv.querySelectorAll('table');
+      tables.forEach(table => {
+        table.style.width = '100%';
+        table.style.border = 'none';
+        table.style.borderCollapse = 'collapse';
+        
+        // Fix all cells
+        const cells = table.querySelectorAll('td, th');
+        cells.forEach(cell => {
+          cell.style.border = 'none';
+          cell.style.padding = '0.5rem';
+          cell.style.verticalAlign = 'top';
+          
+          // Remove fixed widths that are too small
+          const width = cell.style.width;
+          if (width && parseInt(width) < 100) {
+            cell.style.width = '';
+          }
+        });
+      });
+      
+      // Make images responsive while keeping their relative size
       const images = tempDiv.querySelectorAll('img');
       images.forEach(img => {
-        // Keep the image but ensure it's responsive
-        const currentWidth = img.getAttribute('width');
-        if (currentWidth) {
-          img.style.maxWidth = '100%';
-          img.style.height = 'auto';
-        }
+        img.style.maxWidth = '100%';
+        img.style.height = 'auto';
+        img.style.display = 'block';
       });
       
       // Insert the HTML preserving Google Docs structure

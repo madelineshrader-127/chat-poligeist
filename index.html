@@ -1126,12 +1126,48 @@ function setupPasteHandler() {
   contentEl.addEventListener('paste', function(e) {
     // Small delay to let the paste complete
     setTimeout(() => {
-      const images = contentEl.querySelectorAll('img:not(.wrap-left):not(.wrap-right):not(.center)');
+      const images = contentEl.querySelectorAll('img');
       images.forEach(img => {
-        img.classList.add('wrap-left');
+        // Remove any inline styles that might interfere
+        img.removeAttribute('style');
+        // Add wrap-left class if it doesn't have any wrap class
+        if (!img.classList.contains('wrap-left') && 
+            !img.classList.contains('wrap-right') && 
+            !img.classList.contains('center')) {
+          img.classList.add('wrap-left');
+        }
       });
     }, 100);
   });
+  
+  // Also check for dynamically added images
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      mutation.addedNodes.forEach(function(node) {
+        if (node.nodeName === 'IMG') {
+          node.removeAttribute('style');
+          if (!node.classList.contains('wrap-left') && 
+              !node.classList.contains('wrap-right') && 
+              !node.classList.contains('center')) {
+            node.classList.add('wrap-left');
+          }
+        }
+        if (node.querySelectorAll) {
+          const imgs = node.querySelectorAll('img');
+          imgs.forEach(img => {
+            img.removeAttribute('style');
+            if (!img.classList.contains('wrap-left') && 
+                !img.classList.contains('wrap-right') && 
+                !img.classList.contains('center')) {
+              img.classList.add('wrap-left');
+            }
+          });
+        }
+      });
+    });
+  });
+  
+  observer.observe(contentEl, { childList: true, subtree: true });
 }
 
 // ============================================

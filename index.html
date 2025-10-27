@@ -224,6 +224,9 @@
     .post-meta { color:#7f8c8d; font-size:0.95rem; margin-bottom:1.5rem; font-style:italic; }
     .post-content { color:#34495e; font-size:1.1rem; line-height:1.8; }
     .post-content img { max-width: 100%; height: auto; border-radius: 4px; margin: 1rem 0; }
+    .post-content img.wrap-left { float: left; margin: 0.5rem 1rem 0.5rem 0; max-width: 50%; }
+    .post-content img.wrap-right { float: right; margin: 0.5rem 0 0.5rem 1rem; max-width: 50%; }
+    .post-content img.center { display: block; margin: 1rem auto; max-width: 80%; }
 
     /* Delete button for posts */
     .delete-post-btn {
@@ -1045,14 +1048,33 @@ function format(command) {
 
 function insertImage() {
   const url = prompt("Enter image URL (must be hosted online):");
-  if (url && url.trim()) {
-    try {
-      new URL(url);
-      document.execCommand('insertImage', false, url.trim());
-      document.getElementById('content').focus();
-    } catch (e) {
-      alert('Please enter a valid URL.');
+  if (!url || !url.trim()) return;
+  
+  try {
+    new URL(url);
+    
+    // Ask for wrapping preference
+    const wrap = prompt("Choose image alignment:\n1 - No wrap (default)\n2 - Wrap left (image on left, text on right)\n3 - Wrap right (image on right, text on left)\n4 - Center\n\nEnter 1, 2, 3, or 4:");
+    
+    let imgHTML = '';
+    switch(wrap) {
+      case '2':
+        imgHTML = `<img src="${url.trim()}" class="wrap-left" alt="Image">`;
+        break;
+      case '3':
+        imgHTML = `<img src="${url.trim()}" class="wrap-right" alt="Image">`;
+        break;
+      case '4':
+        imgHTML = `<img src="${url.trim()}" class="center" alt="Image">`;
+        break;
+      default:
+        imgHTML = `<img src="${url.trim()}" alt="Image">`;
     }
+    
+    document.execCommand('insertHTML', false, imgHTML);
+    document.getElementById('content').focus();
+  } catch (e) {
+    alert('Please enter a valid URL.');
   }
 }
 

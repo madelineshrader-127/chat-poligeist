@@ -1138,37 +1138,56 @@ function setupPasteHandler() {
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = pastedHTML;
       
-      // Fix table widths and styling
+      // Find tables that Google Docs uses for text wrapping
       const tables = tempDiv.querySelectorAll('table');
       tables.forEach(table => {
-        table.style.width = '100%';
-        table.style.border = 'none';
-        table.style.borderCollapse = 'collapse';
+        // Check if this is a text-wrapping table (has image in first cell)
+        const firstCell = table.querySelector('td');
+        const hasImage = firstCell && firstCell.querySelector('img');
         
-        // Fix all cells
-        const cells = table.querySelectorAll('td, th');
-        cells.forEach(cell => {
-          cell.style.border = 'none';
-          cell.style.padding = '0.5rem';
-          cell.style.verticalAlign = 'top';
+        if (hasImage) {
+          // Extract the image and text
+          const img = firstCell.querySelector('img');
+          const textCells = table.querySelectorAll('td');
           
-          // Remove fixed widths that are too small
-          const width = cell.style.width;
-          if (width && parseInt(width) < 100) {
-            cell.style.width = '';
+          // Create a wrapper div
+          const wrapperDiv = document.createElement('div');
+          wrapperDiv.style.overflow = 'auto';
+          
+          // Style the image to float left
+          if (img) {
+            img.style.float = 'left';
+            img.style.marginRight = '1rem';
+            img.style.marginBottom = '0.5rem';
+            img.style.maxWidth = '300px';
+            img.style.height = 'auto';
+            wrapperDiv.appendChild(img.cloneNode(true));
           }
-        });
+          
+          // Add all text content after the image
+          textCells.forEach((cell, index) => {
+            if (index > 0 || !hasImage) {
+              const content = cell.innerHTML;
+              const textDiv = document.createElement('div');
+              textDiv.innerHTML = content;
+              wrapperDiv.appendChild(textDiv);
+            }
+          });
+          
+          // Get any content after the table
+          let nextSibling = table.nextSibling;
+          while (nextSibling) {
+            const clone = nextSibling.cloneNode(true);
+            wrapperDiv.appendChild(clone);
+            nextSibling = nextSibling.nextSibling;
+          }
+          
+          // Replace the table with the wrapper
+          table.replaceWith(wrapperDiv);
+        }
       });
       
-      // Make images responsive while keeping their relative size
-      const images = tempDiv.querySelectorAll('img');
-      images.forEach(img => {
-        img.style.maxWidth = '100%';
-        img.style.height = 'auto';
-        img.style.display = 'block';
-      });
-      
-      // Insert the HTML preserving Google Docs structure
+      // Insert the processed HTML
       document.execCommand('insertHTML', false, tempDiv.innerHTML);
     } else {
       // Fallback to plain text if no HTML
